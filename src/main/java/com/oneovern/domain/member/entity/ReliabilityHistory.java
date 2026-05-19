@@ -29,6 +29,6 @@ public class ReliabilityHistory extends BaseEntity {
     private String reason;
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
-    @JoinColumn(name="member_id")
+    @JoinColumn(name="member_id", nullable = false)
     private Member member;
 }
