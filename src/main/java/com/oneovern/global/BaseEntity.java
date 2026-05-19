@@ -1,4 +1,4 @@
-package com.example.umc10th.global;
+package com.oneovern.global;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
