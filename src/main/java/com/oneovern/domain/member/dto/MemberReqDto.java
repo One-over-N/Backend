@@ -16,7 +16,7 @@ public class MemberReqDto {
             @Pattern(regexp = "^[가-힣a-zA-Z0-9]*$", message = "닉네임에 특수문자는 사용할 수 없습니다.")
             String nickname,
 
-            @NotNull(message = "이메일은 필수입니다.")
+            @NotBlank(message = "비밀번호는 필수 입력 항목입니다.")
             @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&]).*$", message = "비밀번호에 영문, 숫자, 특수문자를 최소 하나씩 포함해주세요.")
             @Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하로 입력해주세요.")
             String password

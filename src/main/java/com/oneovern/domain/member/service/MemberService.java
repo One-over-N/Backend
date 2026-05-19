@@ -4,6 +4,8 @@ import com.oneovern.domain.member.converter.MemberConverter;
 import com.oneovern.domain.member.dto.MemberReqDto;
 import com.oneovern.domain.member.dto.MemberResDto;
 import com.oneovern.domain.member.entity.Member;
+import com.oneovern.domain.member.exception.MemberException;
+import com.oneovern.domain.member.exception.code.MemberErrorCode;
 import com.oneovern.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +23,12 @@ public class MemberService {
     //회원가입
     @Transactional
     public MemberResDto.Join join(MemberReqDto.Join dto) {
+
+        //이메일 중복 확인
+        if(memberRepository.findByEmail(dto.email()).isPresent()){
+            throw new MemberException(MemberErrorCode.ALREADY_EXIST_MEMBER);
+        }
+
         //비밀번호 암호화
         String encodedPassword=passwordEncoder.encode(dto.password());
 

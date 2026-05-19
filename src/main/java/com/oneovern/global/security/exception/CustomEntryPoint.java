@@ -1,7 +1,7 @@
 package com.oneovern.global.security.exception;
 
+import com.oneovern.global.apiPayload.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oneovern.global.ApiResponse;
 import com.oneovern.global.apiPayload.code.BaseErrorCode;
 import com.oneovern.global.apiPayload.code.GeneralErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
