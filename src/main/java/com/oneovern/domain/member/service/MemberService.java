@@ -7,12 +7,11 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.member.exception.MemberException;
 import com.oneovern.domain.member.exception.code.MemberErrorCode;
 import com.oneovern.domain.member.repository.MemberRepository;
-import com.oneovern.global.apiPayload.code.GeneralErrorCode;
-import com.oneovern.global.apiPayload.exception.ProjectException;
 import com.oneovern.global.security.entity.AuthMember;
 import com.oneovern.global.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,13 +77,10 @@ public class MemberService {
         return MemberConverter.toLoginResDto(member, accessToken, refreshToken);
     }
 
-    public void logout(Member member, String accessTokenHeader) {
-        //accessToken 추출
-        String accessToken=accessTokenHeader.substring(7);
+    //로그아웃
+    public void logout(Member member) {
 
-        if (accessTokenHeader == null || !accessTokenHeader.startsWith("Bearer ")) {
-            throw new ProjectException(GeneralErrorCode.BAD_REQUEST);
-        }
+        String accessToken= (String)SecurityContextHolder.getContext().getAuthentication().getCredentials();
 
         //refreshToekn 삭제
         String rtKey="RT:"+member.getEmail();

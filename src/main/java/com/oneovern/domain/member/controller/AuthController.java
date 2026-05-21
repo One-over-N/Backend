@@ -37,9 +37,9 @@ public class AuthController {
 
     // 로그아웃
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(@AuthUser Member member, @RequestHeader("Authorization") String accessTokenHeader) {
+    public ApiResponse<Void> logout(@AuthUser Member member) {
 
-        memberService.logout(member, accessTokenHeader);
+        memberService.logout(member);
         BaseSuccessCode code=MemberSuccessCode.LOGGED_OUT;
         return ApiResponse.onSuccess(code, null);
     }
