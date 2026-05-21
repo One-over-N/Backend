@@ -4,12 +4,10 @@ import com.oneovern.global.security.exception.CustomAccessDenied;
 import com.oneovern.global.security.exception.CustomEntryPoint;
 import com.oneovern.global.security.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,11 +24,23 @@ public class SecurityConfig {
     private final CustomAccessDenied customAccessDenied;
     private final JwtAuthFilter jwtAuthFilter;
 
+    private final String[] allowUrls={ //인증 없이 접근 가능 경로들
+            // Swagger 허용
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/v3/api-docs/**",
+            //로그인
+            "/auth/login",
+            //회원가입
+            "/auth/signup"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests->requests
-                        .anyRequest().authenticated() //모든 요청 인증 요구
+                        .requestMatchers(allowUrls).permitAll() //인증 없이 접근 가능 경로 지정
+                        .anyRequest().authenticated() //그 외 모든 요청 인증 요구
                 )
                 .formLogin(AbstractHttpConfigurer::disable) //폼 로그인 비활성화
                 .sessionManagement(session->session //세션 관리 비활성화
