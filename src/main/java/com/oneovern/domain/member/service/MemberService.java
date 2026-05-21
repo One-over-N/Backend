@@ -7,6 +7,8 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.member.exception.MemberException;
 import com.oneovern.domain.member.exception.code.MemberErrorCode;
 import com.oneovern.domain.member.repository.MemberRepository;
+import com.oneovern.global.security.entity.AuthMember;
+import com.oneovern.global.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     //회원가입
     @Transactional
@@ -40,5 +43,31 @@ public class MemberService {
 
         //member 엔티티->dto
         return MemberConverter.toJoinResDto(savedMember);
+    }
+
+    //로그인
+    @Transactional
+    public MemberResDto.Login login(MemberReqDto.Login dto) {
+
+        //이메일 확인
+        Member member=memberRepository.findByEmail(dto.email())
+                .orElseThrow(()->new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        //비밀번호 확인
+        if(!passwordEncoder.matches(dto.password(),member.getPassword())){
+            throw new MemberException(MemberErrorCode.INCORRECT_PASSWORD);
+        }
+
+        //member->authmember
+        AuthMember authMember=new AuthMember(member);
+
+        //accessToken 생성
+        String accessToken=jwtUtil.createAccessToken(authMember);
+
+        //refreshToken 생성
+        String refreshToken=jwtUtil.createRefreshToken(authMember);
+
+        //member 엔티티,토큰->dto
+        return MemberConverter.toLoginResDto(member, accessToken, refreshToken);
     }
 }

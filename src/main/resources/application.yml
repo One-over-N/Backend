@@ -4,16 +4,23 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL} # jdbc:mysql://localhost:3306/{???????}
-    username: ${DB_USER} # MySQL ?? ??
-    password: ${DB_PW} # MySQL ????
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
 
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
-    show-sql: true # SQL ??? ??? ??
+    show-sql: true
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true # SQL ?? ???
+        format_sql: true
+
+jwt:
+  token:
+    secretKey: ${JWT_SECRET_KEY}
+    expiration:
+        access: 1h #1시간
+        refresh: 14d #2주

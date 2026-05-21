@@ -2,15 +2,18 @@ package com.oneovern.global.config;
 
 import com.oneovern.global.security.exception.CustomAccessDenied;
 import com.oneovern.global.security.exception.CustomEntryPoint;
+import com.oneovern.global.security.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
 @Configuration
@@ -19,6 +22,7 @@ public class SecurityConfig {
 
     private final CustomEntryPoint customEntryPoint;
     private final CustomAccessDenied customAccessDenied;
+    private final JwtAuthFilter jwtAuthFilter;
 
     private final String[] allowUrls={ //인증 없이 접근 가능 경로들
             // Swagger 허용
@@ -36,10 +40,10 @@ public class SecurityConfig {
                         .requestMatchers(allowUrls).permitAll() //인증 없이 접근 가능 경로 지정
                         .anyRequest().authenticated() //그 외 모든 요청 인증 요구
                 )
-                .formLogin(form->form
-                        .defaultSuccessUrl("/swagger-ui/index.html", true) //로그인 성공시 이동
-                        .permitAll()
-                )
+                .formLogin(AbstractHttpConfigurer::disable) //폼 로그인 비활성화
+                .sessionManagement(session->session //세션 관리 비활성화
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) //(id/pw 검사 전에) jwt 필터 추가
                 .logout(logout->logout
                         .logoutUrl("/logout") //로그아웃 경로
                         .logoutSuccessUrl("/login?logout") //로그아웃 성공시 이동
@@ -57,5 +61,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder(){ //비밀번호 솔트
         return new BCryptPasswordEncoder();
     }
+
 
 }
