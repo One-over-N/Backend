@@ -27,8 +27,8 @@ public class MemberConverter {
     public static MemberResDto.Login toLoginResDto(Member member, String accessToken, String refreshToken) {
         return MemberResDto.Login.builder()
                 .userId(member.getId())
-                .AccessToken(accessToken)
-                .RefreshToken(refreshToken)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
     }
 
