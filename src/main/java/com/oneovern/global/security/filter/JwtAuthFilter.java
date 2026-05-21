@@ -32,7 +32,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
     private static final ObjectMapper mapper = new ObjectMapper();
-    private final RedisTemplate<Object, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Override
     protected void doFilterInternal(
@@ -57,8 +57,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if(jwtUtil.isValid(token)){
 
                 //Redis 블랙리스트에 등록된 토큰인지 확인
-                String isBlackList=String.valueOf(redisTemplate.opsForValue().get("BL:"+token));
-                if (isBlackList != null && !isBlackList.equals("null")){
+                if (Boolean.TRUE.equals(redisTemplate.hasKey("BL:"+token))){
                     throw new JwtException("로그아웃된 토큰입니다.");
                 }
 

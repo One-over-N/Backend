@@ -7,6 +7,8 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.member.exception.MemberException;
 import com.oneovern.domain.member.exception.code.MemberErrorCode;
 import com.oneovern.domain.member.repository.MemberRepository;
+import com.oneovern.global.apiPayload.code.GeneralErrorCode;
+import com.oneovern.global.apiPayload.exception.ProjectException;
 import com.oneovern.global.security.entity.AuthMember;
 import com.oneovern.global.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +82,10 @@ public class MemberService {
         //accessToken 추출
         String accessToken=accessTokenHeader.substring(7);
 
+        if (accessTokenHeader == null || !accessTokenHeader.startsWith("Bearer ")) {
+            throw new ProjectException(GeneralErrorCode.BAD_REQUEST);
+        }
+
         //refreshToekn 삭제
         String rtKey="RT:"+member.getEmail();
         redisTemplate.delete(rtKey);
@@ -88,7 +94,7 @@ public class MemberService {
         Long expirationTime=jwtUtil.getExpiration(accessToken);
 
         if (expirationTime!=null){
-            long now=new Date().getTime();
+            long now=System.currentTimeMillis();
             long remainTime=expirationTime-now;
 
             if (remainTime > 0) {

@@ -30,7 +30,9 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/v3/api-docs/**",
             //로그인
-            "/auth/**"
+            "/auth/login",
+            //회원가입
+            "/auth/signup"
     };
 
     @Bean
@@ -44,11 +46,7 @@ public class SecurityConfig {
                 .sessionManagement(session->session //세션 관리 비활성화
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) //(id/pw 검사 전에) jwt 필터 추가
-                .logout(logout->logout
-                        .logoutUrl("/logout") //로그아웃 경로
-                        .logoutSuccessUrl("/login?logout") //로그아웃 성공시 이동
-                        .permitAll()
-                )
+                .logout(AbstractHttpConfigurer::disable)
                 //예외 상황 핸들러
                 .exceptionHandling(exception->exception
                         .accessDeniedHandler(customAccessDenied)
