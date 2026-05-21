@@ -92,4 +92,13 @@ public class JwtUtil {
         }
     }
 
+    //토큰 만료 시간 추출
+    public Long getExpiration(String token){
+        try {
+            return getClaims(token).getPayload().getExpiration().getTime();
+        }catch(JwtException e){
+            return null;
+        }
+    }
+
 }

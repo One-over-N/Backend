@@ -18,6 +18,11 @@ spring:
       hibernate:
         format_sql: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 jwt:
   token:
     secretKey: ${JWT_SECRET_KEY}

@@ -44,6 +44,9 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Redis template
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {
