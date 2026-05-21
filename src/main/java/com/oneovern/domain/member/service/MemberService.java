@@ -74,13 +74,16 @@ public class MemberService {
         String refreshToken=jwtUtil.createRefreshToken(authMember);
 
         //redis에 refreshToken 추가
-        redisTemplate.opsForValue().set(
-                "RT:" + member.getEmail(),
-                refreshToken,
-                jwtUtil.getExpiration(refreshToken) - System.currentTimeMillis(), // RT 만료시간만큼 유지
-                TimeUnit.MILLISECONDS
-        );
+        Long expiration= jwtUtil.getExpiration(refreshToken);
 
+        if(expiration!=null) {
+            redisTemplate.opsForValue().set(
+                    "RT:" + member.getEmail(),
+                    refreshToken,
+                    expiration - System.currentTimeMillis(), // RT 만료시간만큼 유지
+                    TimeUnit.MILLISECONDS
+            );
+        }
         //member 엔티티,토큰->dto
         return MemberConverter.toLoginResDto(member, accessToken, refreshToken);
     }
