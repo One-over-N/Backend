@@ -65,7 +65,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<JwtAuthFilter> tenantFilterRegisteration(JwtAuthFilter filter){
+    public FilterRegistrationBean<JwtAuthFilter> jwtAuthtFilterRegistrationBean(JwtAuthFilter filter){
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false); //JwtAuthFilter 톰캣 전역 필터로 미등록
         return registration;
