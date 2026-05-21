@@ -6,11 +6,13 @@ import com.oneovern.global.apiPayload.code.BaseErrorCode;
 import com.oneovern.global.apiPayload.code.GeneralErrorCode;
 import com.oneovern.global.security.service.CustomUserDetailsService;
 import com.oneovern.global.security.util.JwtUtil;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,12 +23,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService customuserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(
@@ -54,7 +58,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 String email = jwtUtil.getEmail(token);
 
                 //인증 객체 생성
-                UserDetails user=customuserDetailsService.loadUserByUsername(email);
+                UserDetails user=customUserDetailsService.loadUserByUsername(email);
                 Authentication auth=new UsernamePasswordAuthenticationToken(
                         user,
                         null,
@@ -65,16 +69,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
             filterChain.doFilter(request, response);
+        } catch (JwtException e) {
+            handleException(response, GeneralErrorCode.UNAUTHORIZED, e.getMessage());
         } catch (Exception e) {
-            ObjectMapper mapper = new ObjectMapper();
-            BaseErrorCode code= GeneralErrorCode.UNAUTHORIZED;
-
-            response.setContentType("application/json;charset=UTF-8");
-            response.setStatus(code.getStatus().value());
-
-            ApiResponse<Void> errorResponse=ApiResponse.onFailure(code, null);
-
-            mapper.writeValue(response.getOutputStream(), errorResponse);
+            log.error("서버 내부 필터 에러: {}", e.getMessage(), e);
+            handleException(response, GeneralErrorCode.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
+    }
+
+    // 에러 응답 공통 메서드
+    private void handleException(HttpServletResponse response, BaseErrorCode code, String message) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(code.getStatus().value());
+
+        ApiResponse<Void> errorResponse = ApiResponse.onFailure(code, null);
+        mapper.writeValue(response.getOutputStream(), errorResponse);
     }
 }

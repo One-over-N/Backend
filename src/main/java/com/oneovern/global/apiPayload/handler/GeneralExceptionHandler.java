@@ -36,7 +36,7 @@ public class GeneralExceptionHandler {
     //그 외 에러
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleException(Exception ex){
-        BaseErrorCode code= GeneralErrorCode.INTERNEL_SERVER_ERROR;
+        BaseErrorCode code= GeneralErrorCode.INTERNAL_SERVER_ERROR;
         return ResponseEntity
                 .status(code.getStatus())
                 .body(ApiResponse.onFailure(code, ex.getMessage()));
