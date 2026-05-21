@@ -10,9 +10,13 @@ import com.oneovern.domain.member.repository.MemberRepository;
 import com.oneovern.global.security.entity.AuthMember;
 import com.oneovern.global.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final RedisTemplate<String, String> redisTemplate;
 
     //회원가입
     @Transactional
@@ -69,5 +74,31 @@ public class MemberService {
 
         //member 엔티티,토큰->dto
         return MemberConverter.toLoginResDto(member, accessToken, refreshToken);
+    }
+
+    public void logout(Member member, String accessTokenHeader) {
+        //accessToken 추출
+        String accessToken=accessTokenHeader.substring(7);
+
+        //refreshToekn 삭제
+        String rtKey="RT:"+member.getEmail();
+        redisTemplate.delete(rtKey);
+
+        //accessToekn 블랙리스트 등록
+        Long expirationTime=jwtUtil.getExpiration(accessToken);
+
+        if (expirationTime!=null){
+            long now=new Date().getTime();
+            long remainTime=expirationTime-now;
+
+            if (remainTime > 0) {
+                redisTemplate.opsForValue().set(
+                        "BL:"+accessToken,
+                        "logout",
+                        remainTime,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        }
     }
 }

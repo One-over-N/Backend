@@ -2,16 +2,15 @@ package com.oneovern.domain.member.controller;
 
 import com.oneovern.domain.member.dto.MemberReqDto;
 import com.oneovern.domain.member.dto.MemberResDto;
+import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.member.exception.code.MemberSuccessCode;
 import com.oneovern.domain.member.service.MemberService;
 import com.oneovern.global.apiPayload.ApiResponse;
 import com.oneovern.global.apiPayload.code.BaseSuccessCode;
+import com.oneovern.global.security.annotation.AuthUser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,5 +33,14 @@ public class AuthController {
 
         BaseSuccessCode code=MemberSuccessCode.LOGINED;
         return ApiResponse.onSuccess(code, memberService.login(dto));
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@AuthUser Member member, @RequestHeader("Authorization") String accessTokenHeader) {
+
+        memberService.logout(member, accessTokenHeader);
+        BaseSuccessCode code=MemberSuccessCode.LOGGED_OUT;
+        return ApiResponse.onSuccess(code, null);
     }
 }
