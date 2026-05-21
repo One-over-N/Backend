@@ -36,7 +36,7 @@ public class Member extends BaseEntity {
     private Integer reliabilityScore=50; //반정규화
 
     @OneToMany(mappedBy = "member") //DB에서 cascade 설정 필요
-    private List<ReliabilityHistory> reliabilityHistory=new ArrayList<>(); //reliabilty_history와의 연관관계
+    private List<ReliabilityHistory> reliabilityHistories=new ArrayList<>(); //reliabilty_history와의 연관관계
 
 
 }
