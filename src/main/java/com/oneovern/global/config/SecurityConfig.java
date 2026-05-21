@@ -65,7 +65,7 @@ public class SecurityConfig {
         return web->web.ignoring().requestMatchers(
                 // Swagger 허용
                 "/swagger-ui/**",
-                "/swagger-resources/**",
+    public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistrationBean(JwtAuthFilter filter){
                 "/v3/api-docs/**",
                 //로그인
                 "/auth/login",
