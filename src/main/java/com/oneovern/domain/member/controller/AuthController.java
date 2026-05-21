@@ -27,4 +27,12 @@ public class AuthController {
         BaseSuccessCode code = MemberSuccessCode.SIGNED_UP;
         return ApiResponse.onSuccess(code, memberService.join(dto));
     }
+
+    // 로그인
+    @PostMapping("/login")
+    public ApiResponse<MemberResDto.Login> login(@RequestBody @Valid MemberReqDto.Login dto) {
+
+        BaseSuccessCode code=MemberSuccessCode.LOGINED;
+        return ApiResponse.onSuccess(code, memberService.login(dto));
+    }
 }

@@ -16,8 +16,11 @@ public enum MemberErrorCode implements BaseErrorCode {
 
     // 회원 가입
     ALREADY_EXIST_MEMBER(HttpStatus.BAD_REQUEST, "MEMBER400_1", "이미 존재하는 회원입니다."),
-    INVALID_TERM_AGREEMENT(HttpStatus.BAD_REQUEST, "MEMBER400_2", "필수 약관에 동의해야 합니다."),
-    INVALID_GENDER(HttpStatus.BAD_REQUEST, "MEMBER400_3", "성별 형식이 올바르지 않습니다.");
+
+    // 로그인
+    INCORRECT_PASSWORD(HttpStatus.BAD_REQUEST, "MEMBER400_2", "비밀번호가 틀렸습니다.");
+
+
 
     private final HttpStatus status;
     private final String code;

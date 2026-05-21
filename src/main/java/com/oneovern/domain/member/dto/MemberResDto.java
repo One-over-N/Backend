@@ -13,4 +13,12 @@ public class MemberResDto {
             LocalDateTime createdAt
     ){}
 
+    //로그인
+    @Builder
+    public record Login(
+            Long userId,
+            String AccessToken,
+            String RefreshToken
+    ){}
+
 }

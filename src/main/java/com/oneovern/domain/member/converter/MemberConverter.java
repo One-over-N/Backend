@@ -23,5 +23,13 @@ public class MemberConverter {
                 .build();
     }
 
+    //member,token->MemberResDto.login
+    public static MemberResDto.Login toLoginResDto(Member member, String accessToken, String refreshToken) {
+        return MemberResDto.Login.builder()
+                .userId(member.getId())
+                .AccessToken(accessToken)
+                .RefreshToken(refreshToken)
+                .build();
+    }
 
 }
