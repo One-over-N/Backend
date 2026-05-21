@@ -60,5 +60,25 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer(){
+        return web->web.ignoring().requestMatchers(
+                // Swagger 허용
+                "/swagger-ui/**",
+    public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistrationBean(JwtAuthFilter filter){
+                "/v3/api-docs/**",
+                //로그인
+                "/auth/login",
+                //회원가입
+                "/auth/signup"
+        );
+    }
+
+    @Bean
+    public FilterRegistrationBean<JwtAuthFilter> jwtAuthtFilterRegistrationBean(JwtAuthFilter filter){
+        FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
+        registration.setEnabled(false); //JwtAuthFilter 톰캣 전역 필터로 미등록
+        return registration;
+    }
 
 }
