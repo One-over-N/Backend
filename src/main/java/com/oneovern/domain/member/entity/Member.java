@@ -1,5 +1,8 @@
 package com.oneovern.domain.member.entity;
 
+import com.oneovern.domain.notification.entity.Notification;
+import com.oneovern.domain.party.entity.mapping.JoinRequest;
+import com.oneovern.domain.party.entity.mapping.PartyMember;
 import com.oneovern.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,5 +41,13 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member") //DB에서 cascade 설정 필요
     private List<ReliabilityHistory> reliabilityHistories=new ArrayList<>(); //reliabilty_history와의 연관관계
 
+    @OneToMany(mappedBy = "member")
+    private List<Notification> notifications=new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<JoinRequest> joinRequests=new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<PartyMember> partyMembers=new ArrayList<>();
 
 }
