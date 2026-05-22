@@ -4,10 +4,12 @@ import com.oneovern.global.security.exception.CustomAccessDenied;
 import com.oneovern.global.security.exception.CustomEntryPoint;
 import com.oneovern.global.security.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -65,7 +67,7 @@ public class SecurityConfig {
         return web->web.ignoring().requestMatchers(
                 // Swagger 허용
                 "/swagger-ui/**",
-    public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistrationBean(JwtAuthFilter filter){
+                "/swagger-resources/**",
                 "/v3/api-docs/**",
                 //로그인
                 "/auth/login",
@@ -75,10 +77,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<JwtAuthFilter> jwtAuthtFilterRegistrationBean(JwtAuthFilter filter){
+    public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistrationBean(JwtAuthFilter filter){
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false); //JwtAuthFilter 톰캣 전역 필터로 미등록
         return registration;
     }
-
 }
