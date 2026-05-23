@@ -38,16 +38,16 @@ public class Member extends BaseEntity {
     @Column(name = "reliability_score", nullable = false)
     private Integer reliabilityScore=50; //반정규화
 
-    @OneToMany(mappedBy = "member") //DB에서 cascade 설정 필요
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) //DB에서 cascade 설정 필요
     private List<ReliabilityHistory> reliabilityHistories=new ArrayList<>(); //reliabilty_history와의 연관관계
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications=new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JoinRequest> joinRequests=new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PartyMember> partyMembers=new ArrayList<>();
 
 }

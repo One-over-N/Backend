@@ -1,7 +1,7 @@
 package com.oneovern.domain.settlement.entity;
 
 import com.oneovern.domain.member.entity.Member;
-import com.oneovern.domain.settlement.enums.PaymentStatuses;
+import com.oneovern.domain.settlement.enums.PaymentStatus;
 import com.oneovern.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,7 +31,7 @@ public class MemberPayment extends BaseEntity {
     @Builder.Default
     @Column(name = "payment_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PaymentStatuses paymentStatus=PaymentStatuses.UNPAID;
+    private PaymentStatus paymentStatus= PaymentStatus.UNPAID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "party_settlement_id", nullable = false)

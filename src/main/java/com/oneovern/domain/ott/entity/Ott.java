@@ -27,6 +27,6 @@ public class Ott extends BaseEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @OneToMany(mappedBy = "ott")
+    @OneToMany(mappedBy = "ott", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OttPlan> ottPlans=new ArrayList<>();
 }

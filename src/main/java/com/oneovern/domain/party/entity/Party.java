@@ -4,7 +4,7 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.ott.entity.OttPlan;
 import com.oneovern.domain.party.entity.mapping.JoinRequest;
 import com.oneovern.domain.party.entity.mapping.PartyMember;
-import com.oneovern.domain.party.enums.PartyStatuses;
+import com.oneovern.domain.party.enums.PartyStatus;
 import com.oneovern.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -38,11 +38,14 @@ public class Party extends BaseEntity {
     private String ottAccountPassword;
 
     @Column(name = "bank", nullable = false)
+    private String bankt;
+
+    @Column(name = "bank_account", nullable = false)
     private String bankAccount;
 
     @Column(name = "party_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PartyStatuses partyStatus;
+    private PartyStatus partyStatus;
 
     @Column(name = "started_at")
     private LocalDateTime startedAt;
@@ -55,9 +58,9 @@ public class Party extends BaseEntity {
     @JoinColumn(name = "leader_id", nullable = false)
     private Member leader;
 
-    @OneToMany(mappedBy = "party")
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JoinRequest> joinRequests=new ArrayList<>();
 
-    @OneToMany(mappedBy = "party")
+    @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PartyMember> partyMembers=new ArrayList<>();
 }

@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PartyStatuses {
-
-    RECRUITING("모집 중"),
-    CLOSED("모집 완료");
+public enum RequestStatus
+{
+    PENDING("보류"),
+    APPROVED("승인"),
+    REJECTED("거절");
 
     private final String description;
-
 }

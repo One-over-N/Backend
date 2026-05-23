@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum NotificationTypes {
+public enum NotificationType {
     PAYMENT_REQUEST("정산 요청"),
     JOIN_REQUEST("가입 요청"),
     JOIN_APPROVED("가입 승인");

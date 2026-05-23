@@ -1,10 +1,12 @@
 package com.oneovern.domain.notification.entity;
 
 import com.oneovern.domain.member.entity.Member;
-import com.oneovern.domain.notification.enums.NotificationTypes;
+import com.oneovern.domain.notification.enums.NotificationType;
 import com.oneovern.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -20,19 +22,20 @@ public class Notification extends BaseEntity {
 
     @Column(name="notification_type", nullable = false)
     @Enumerated(EnumType.STRING)
-    private NotificationTypes notificationType;
+    private NotificationType notificationType;
 
     @Column(name="message", nullable = false)
     private String message;
 
     @Builder.Default
     @Column(name = "is_read", nullable = false)
-    private Boolean isRead=false;
+    private boolean isRead=false;
 
     @Column(name="target_url", nullable = false)
     private String targetUrl;
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
     @JoinColumn(name = "member_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 }

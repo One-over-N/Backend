@@ -5,9 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PaymentStatuses {
-    PAID("납부 완료"),
-    UNPAID("대기중");
+public enum SettlementStatus {
+    PENDING("대기중"),
+    CONFIRMED("정산 완료");
 
     private final String description;
+
 }
