@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 public class MemberPayment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_payment_id")
     private Long id;
 
     @Column(name = "payment_amount", nullable = false)

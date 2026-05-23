@@ -20,6 +20,7 @@ import java.time.LocalDate;
 public class PartySettlement extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "party_settlement_id")
     private Long id;
 
     @Column(name = "settlement_status", nullable = false)

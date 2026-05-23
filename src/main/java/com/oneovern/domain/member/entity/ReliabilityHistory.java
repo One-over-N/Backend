@@ -21,6 +21,7 @@ public class ReliabilityHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "reliability_history_id")
     private Long id;
 
     @Column(name = "change_score", nullable = false)
