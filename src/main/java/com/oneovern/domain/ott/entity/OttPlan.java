@@ -19,16 +19,16 @@ public class OttPlan  extends BaseEntity {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "plan_name")
+    @Column(name = "plan_name", nullable = false)
     private String planName;
 
-    @Column(name = "monthly_price")
+    @Column(name = "monthly_price", nullable = false)
     private Integer monthlyPrice;
 
-    @Column(name = "max_members")
+    @Column(name = "max_members", nullable = false)
     private Integer maxMembers;
 
     @ManyToOne(fetch = FetchType.LAZY) // ott와의 연관관계
-    @JoinColumn(name = "ott_id")
+    @JoinColumn(name = "ott_id", nullable = false)
     private Ott ott;
 }

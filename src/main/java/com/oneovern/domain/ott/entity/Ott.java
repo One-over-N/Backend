@@ -21,7 +21,7 @@ public class Ott extends BaseEntity {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "service_name")
+    @Column(name = "service_name", nullable = false)
     private String serviceName;
 
     @Column(name = "image_url")

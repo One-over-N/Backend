@@ -22,17 +22,17 @@ public class PartySettlement extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "settlement_status")
+    @Column(name = "settlement_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private SettlementStatuses settlementStatus;
 
-    @Column(name = "target_date")
+    @Column(name = "target_date", nullable = false)
     private LocalDate targetDate;
 
-    @Column(name = "total_amount")
-    private Integer totalAmount;
+    @Column(name = "target_amount", nullable = false)
+    private Integer targetAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "party_id")
+    @JoinColumn(name = "party_id", nullable = false)
     private Party party;
 }

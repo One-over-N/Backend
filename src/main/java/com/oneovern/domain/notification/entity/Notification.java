@@ -18,20 +18,21 @@ public class Notification extends BaseEntity {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="notification_type")
+    @Column(name="notification_type", nullable = false)
     @Enumerated(EnumType.STRING)
     private NotificationTypes notificationType;
 
-    @Column(name="message")
+    @Column(name="message", nullable = false)
     private String message;
 
-    @Column(name = "is_read")
-    private Boolean isRead;
+    @Builder.Default
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead=false;
 
-    @Column(name="target_url")
+    @Column(name="target_url", nullable = false)
     private String targetUrl;
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 }

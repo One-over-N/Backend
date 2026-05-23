@@ -21,10 +21,10 @@ public class PartyMember extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // party와의 연관관계
-    @JoinColumn(name = "party_id")
+    @JoinColumn(name = "party_id", nullable = false)
     private Party party;
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 }

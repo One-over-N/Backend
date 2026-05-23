@@ -22,21 +22,22 @@ public class MemberPayment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "payment_amount")
+    @Column(name = "payment_amount", nullable = false)
     private Integer paymentAmount;
 
     @Column(name = "paid_at")
     private LocalDateTime paidAt;
 
-    @Column(name = "payment_status")
+    @Builder.Default
+    @Column(name = "payment_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PaymentStatuses paymentStatus;
+    private PaymentStatuses paymentStatus=PaymentStatuses.UNPAID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "party_settlement_id")
+    @JoinColumn(name = "party_settlement_id", nullable = false)
     private PartySettlement partySettlement;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 }

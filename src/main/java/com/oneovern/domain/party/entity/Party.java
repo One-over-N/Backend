@@ -28,19 +28,19 @@ public class Party extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "party_name")
+    @Column(name = "party_name", nullable = false)
     private String partyName;
 
-    @Column(name = "ott_account_id")
+    @Column(name = "ott_account_id", nullable = false)
     private String ottAccountId;
 
-    @Column(name = "ott_account_password")
+    @Column(name = "ott_account_password", nullable = false)
     private String ottAccountPassword;
 
-    @Column(name = "bank")
+    @Column(name = "bank", nullable = false)
     private String bankAccount;
 
-    @Column(name = "party_status")
+    @Column(name = "party_status", nullable = false)
     @Enumerated(EnumType.STRING)
     private PartyStatuses partyStatus;
 
@@ -48,11 +48,11 @@ public class Party extends BaseEntity {
     private LocalDateTime startedAt;
 
     @ManyToOne(fetch=FetchType.LAZY) // ott plan과의 연관관계
-    @JoinColumn(name = "ott_plan_id")
+    @JoinColumn(name = "ott_plan_id", nullable = false)
     private OttPlan ottPlan;
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
-    @JoinColumn(name = "leader_id")
+    @JoinColumn(name = "leader_id", nullable = false)
     private Member leader;
 
     @OneToMany(mappedBy = "party")
