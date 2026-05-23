@@ -20,6 +20,7 @@ import org.hibernate.annotations.OnDeleteAction;
 public class PartyMember extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "party_member_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // party와의 연관관계

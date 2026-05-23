@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 public class JoinRequest  extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "join_request_id")
     private Long id;
 
     @Builder.Default

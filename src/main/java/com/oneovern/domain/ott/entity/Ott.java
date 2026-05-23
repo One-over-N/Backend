@@ -19,6 +19,7 @@ import java.util.List;
 public class Ott extends BaseEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "ott_id")
     private Long id;
 
     @Column(name = "ott_name", nullable = false, length = 100)

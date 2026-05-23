@@ -26,6 +26,7 @@ public class Party extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "party_id")
     private Long id;
 
     @Column(name = "party_name", nullable = false, length = 100)

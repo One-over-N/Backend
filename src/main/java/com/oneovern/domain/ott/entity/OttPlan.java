@@ -19,6 +19,7 @@ import org.hibernate.annotations.OnDeleteAction;
 public class OttPlan  extends BaseEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @Column(name = "ott_plan_id")
     private Long id;
 
     @Column(name = "plan_name", nullable = false, length = 100)
