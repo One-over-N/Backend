@@ -10,6 +10,6 @@ public enum PartyStatuses {
     RECRUITING("모집 중"),
     CLOSED("모집 완료");
 
-    private final String discription;
+    private final String description;
 
 }

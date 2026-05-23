@@ -24,8 +24,8 @@ public class Ott extends BaseEntity {
     @Column(name = "service_name")
     private String serviceName;
 
-    @Column(name = "imate_url")
-    private String imateUrl;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @OneToMany(mappedBy = "ott")
     private List<OttPlan> ottPlans=new ArrayList<>();

@@ -10,5 +10,5 @@ public enum NotificationTypes {
     JOIN_REQUEST("가입 요청"),
     JOIN_APPROVED("가입 승인");
 
-    private final String discription;
+    private final String description;
 }

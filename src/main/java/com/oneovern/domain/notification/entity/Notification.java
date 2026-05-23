@@ -16,7 +16,7 @@ public class Notification extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name="notification_type")
     @Enumerated(EnumType.STRING)

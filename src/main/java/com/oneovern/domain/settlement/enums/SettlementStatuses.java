@@ -9,6 +9,6 @@ public enum SettlementStatuses {
     PENDING("대기중"),
     CONFIRMED("정산 완료");
 
-    private final String discription;
+    private final String description;
 
 }

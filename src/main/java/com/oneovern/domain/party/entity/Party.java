@@ -26,7 +26,7 @@ public class Party extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "party_name")
     private String partyName;
@@ -55,9 +55,9 @@ public class Party extends BaseEntity {
     @JoinColumn(name = "leader_id")
     private Member leader;
 
-    @OneToMany(mappedBy = "party_id")
-    private List<JoinRequest> requests=new ArrayList<>();
+    @OneToMany(mappedBy = "party")
+    private List<JoinRequest> joinRequests=new ArrayList<>();
 
-    @OneToMany(mappedBy = "party_id")
+    @OneToMany(mappedBy = "party")
     private List<PartyMember> partyMembers=new ArrayList<>();
 }
