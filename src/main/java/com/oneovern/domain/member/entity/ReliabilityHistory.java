@@ -2,10 +2,14 @@ package com.oneovern.domain.member.entity;
 
 import com.oneovern.global.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -22,6 +26,8 @@ public class ReliabilityHistory extends BaseEntity {
     @Column(name = "change_score", nullable = false)
     private Integer changeScore;
 
+    @Min(0)
+    @Max(100)
     @Column(name = "after_score", nullable = false)
     private Integer afterScore;
 
@@ -30,5 +36,6 @@ public class ReliabilityHistory extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
     @JoinColumn(name="member_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
 }
