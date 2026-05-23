@@ -2,6 +2,8 @@ package com.oneovern.domain.member.entity;
 
 import com.oneovern.global.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +26,8 @@ public class ReliabilityHistory extends BaseEntity {
     @Column(name = "change_score", nullable = false)
     private Integer changeScore;
 
+    @Min(0)
+    @Max(100)
     @Column(name = "after_score", nullable = false)
     private Integer afterScore;
 

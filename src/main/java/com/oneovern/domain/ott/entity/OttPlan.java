@@ -21,7 +21,7 @@ public class OttPlan  extends BaseEntity {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "plan_name", nullable = false)
+    @Column(name = "plan_name", nullable = false, length = 100)
     private String planName;
 
     @Column(name = "monthly_price", nullable = false)

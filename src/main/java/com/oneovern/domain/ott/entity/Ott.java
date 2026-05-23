@@ -21,12 +21,13 @@ public class Ott extends BaseEntity {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "service_name", nullable = false)
-    private String serviceName;
+    @Column(name = "ott_name", nullable = false, length = 100)
+    private String ottName;
 
-    @Column(name = "image_url")
+    @Column(name = "image_url", length = 512)
     private String imageUrl;
 
+    @Builder.Default
     @OneToMany(mappedBy = "ott", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OttPlan> ottPlans=new ArrayList<>();
 }

@@ -28,19 +28,19 @@ public class Party extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "party_name", nullable = false)
+    @Column(name = "party_name", nullable = false, length = 100)
     private String partyName;
 
-    @Column(name = "ott_account_id", nullable = false)
+    @Column(name = "ott_account_id", nullable = false, length = 100)
     private String ottAccountId;
 
     @Column(name = "ott_account_password", nullable = false)
     private String ottAccountPassword;
 
-    @Column(name = "bank", nullable = false)
-    private String bankt;
+    @Column(name = "bank", nullable = false, length = 100)
+    private String bank;
 
-    @Column(name = "bank_account", nullable = false)
+    @Column(name = "bank_account", nullable = false, length = 100)
     private String bankAccount;
 
     @Column(name = "party_status", nullable = false)
@@ -58,9 +58,11 @@ public class Party extends BaseEntity {
     @JoinColumn(name = "leader_id", nullable = false)
     private Member leader;
 
+    @Builder.Default
     @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JoinRequest> joinRequests=new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "party", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PartyMember> partyMembers=new ArrayList<>();
 }
