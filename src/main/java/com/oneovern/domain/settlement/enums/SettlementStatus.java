@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SettlementStatus {
     PENDING("대기중"),
-    CONFIRMED("정산 완료");
+    COMPLETED("정산 완료");
 
     private final String description;
 
