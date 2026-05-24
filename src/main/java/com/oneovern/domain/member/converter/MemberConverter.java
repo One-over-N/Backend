@@ -23,6 +23,15 @@ public class MemberConverter {
                 .build();
     }
 
+    //member->MemberResDto.MyPage
+    public static MemberResDto.MyPage toMyPageResDto(Member member) {
+        return MemberResDto.MyPage.builder()
+                .nickname(member.getNickname())
+                .email(member.getEmail())
+                .reliabilityScore(member.getReliabilityScore())
+                .build();
+    }
+
     //member,token->MemberResDto.login
     public static MemberResDto.Login toLoginResDto(Member member, String accessToken, String refreshToken) {
         return MemberResDto.Login.builder()

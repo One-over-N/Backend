@@ -16,8 +16,11 @@ public enum MemberSuccessCode implements BaseSuccessCode {
     LOGINED(HttpStatus.OK, "MEMBER200_2", "성공적으로 로그인 되었습니다."),
 
     //로그아웃
-    LOGGED_OUT(HttpStatus.OK,"MEMBER200_3" , "성공적으로 로그아웃 되었습니다.");
+    LOGGED_OUT(HttpStatus.OK,"MEMBER200_3" , "성공적으로 로그아웃 되었습니다."),
 
+    //마이페이지
+    MEMBER_FOUND(HttpStatus.OK, "MEMBER200_4", "성공적으로 회원 정보를 조회했습니다.");
+    
     private final HttpStatus status;
     private final String code;
     private final String message;

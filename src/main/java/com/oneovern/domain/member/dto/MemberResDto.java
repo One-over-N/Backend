@@ -21,4 +21,12 @@ public class MemberResDto {
             String refreshToken
     ){}
 
+    //마이페이지 화면 상단 회원 정보
+    @Builder
+    public record MyPage(
+            String nickname,
+            String email,
+            int reliabilityScore
+    ){}
+
 }
