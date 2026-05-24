@@ -116,10 +116,13 @@ public class MemberService {
     }
 
     //마이페이지 정보 조회
-    public MemberResDto.MyPage getMyPageInfo(Member member) {
-        if (member == null) {
+    @Transactional
+    public MemberResDto.MyPage getMyPageInfo(Member loginMember) {
+        if (loginMember == null) {
             throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
         }
+        Member member = memberRepository.findById(loginMember.getId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         return MemberConverter.toMyPageResDto(member);
     }
 }
