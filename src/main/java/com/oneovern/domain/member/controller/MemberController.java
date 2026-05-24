@@ -32,7 +32,7 @@ public class MemberController {
     @PatchMapping("/mypage/profile")
     public ApiResponse<String> updateProfile(
             @AuthUser Member member,
-            @RequestBody MemberReqDto.UpdateProfileDto request
+            @Valid @RequestBody MemberReqDto.UpdateProfileDto request
     ) {
         memberService.updateProfile(member, request);
         return ApiResponse.onSuccess(MemberSuccessCode.MEMBER_FOUND, "프로필 정보가 성공적으로 수정되었습니다.");
