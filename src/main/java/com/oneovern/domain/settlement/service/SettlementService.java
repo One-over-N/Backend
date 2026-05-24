@@ -2,7 +2,8 @@ package com.oneovern.domain.settlement.service;
 
 import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.settlement.converter.SettlementConverter;
-import com.oneovern.domain.settlement.entity.MemberPayment;
+import com.oneovern.domain.settlement.dto.SettlementResDto;
+import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
 import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
 import com.oneovern.global.PageResDto;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class SettlementService {
     private final MemberPaymentRepository memberPaymentRepository;
 
     //이번 달 정산
-    public PageResDto getCurrentMemberPayments(Member member, Long cursor) {
+    public PageResDto<SettlementResDto.CurrentMemberPaymentInfo> getCurrentMemberPayments(Member member, Long cursor) {
 
         final int FIXED_SIZE=10;
 
@@ -32,7 +33,7 @@ public class SettlementService {
         LocalDate endDate=today.withDayOfMonth(today.lengthOfMonth());
 
         //이번 달 정산 조회
-        List<MemberPayment> memberPayments=memberPaymentRepository.findMemberPaymentsByCursor(
+        List<CurrentMemberPaymentProjection> memberPayments=memberPaymentRepository.findMemberPaymentsByCursor(
                 member.getId(),
                 cursor,
                 startDate,
@@ -51,13 +52,13 @@ public class SettlementService {
         //nextCursor 계산
         Long nextCursor = null;
         if (!memberPayments.isEmpty() && !isLast) {
-            nextCursor = memberPayments.get(memberPayments.size() - 1).getId(); // 마지막 데이터의 PK를 커서로 지정
+            nextCursor = memberPayments.get(memberPayments.size() - 1).getMemberPaymentId(); // 마지막 데이터의 PK를 커서로 지정
         }
 
         //dDay 계산
         List<Integer> dDayList=memberPayments.stream()
-                .map(memberPayment -> {
-                    long daysLeft= ChronoUnit.DAYS.between(today, memberPayment.getPartySettlement().getTargetDate());
+                .map(projection -> {
+                    long daysLeft= ChronoUnit.DAYS.between(today, projection.getTargetDate());
                     return(daysLeft>=0&&daysLeft<=3)?(int) daysLeft:null;
                 })
                 .collect(Collectors.toList());

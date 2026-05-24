@@ -10,8 +10,7 @@ public class SettlementResDto {
 
     @Builder
     public record CurrentMemberPaymentInfo(
-            Long partyId,
-            Long planId,
+            Long memberPaymentId,
             String partyName,
             String ottName,
             String planName,

@@ -23,7 +23,7 @@ public class SettlementController {
 
     //이번 달 정산
     @GetMapping("/current")
-    public ApiResponse<PageResDto<SettlementResDto.CurrentMemberPaymentInfo>> GetCurrentMemberPayments(
+    public ApiResponse<PageResDto<SettlementResDto.CurrentMemberPaymentInfo>> getCurrentMemberPayments(
             @AuthUser Member member,
             @RequestParam(name = "cursor", required = false) Long cursor
     ){

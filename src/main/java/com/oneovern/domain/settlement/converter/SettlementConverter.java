@@ -1,7 +1,7 @@
 package com.oneovern.domain.settlement.converter;
 
 import com.oneovern.domain.settlement.dto.SettlementResDto;
-import com.oneovern.domain.settlement.entity.MemberPayment;
+import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
 import com.oneovern.global.PageResDto;
 
 import java.util.ArrayList;
@@ -9,25 +9,24 @@ import java.util.List;
 
 public class SettlementConverter {
 
-    //MemberPayment->paymentInfo
-    public static SettlementResDto.CurrentMemberPaymentInfo toPaymentInfo(MemberPayment memberPayment, Integer dDay)
+    //MemberPayment ->paymentInfo
+    public static SettlementResDto.CurrentMemberPaymentInfo toPaymentInfo(CurrentMemberPaymentProjection projection, Integer dDay)
     {
         return SettlementResDto.CurrentMemberPaymentInfo.builder()
-                .partyId(memberPayment.getPartySettlement().getParty().getId())
-                .planId(memberPayment.getPartySettlement().getParty().getOttPlan().getId())
-                .partyName(memberPayment.getPartySettlement().getParty().getPartyName())
-                .ottName(memberPayment.getPartySettlement().getParty().getOttPlan().getOtt().getOttName())
-                .planName(memberPayment.getPartySettlement().getParty().getOttPlan().getPlanName())
-                .paymentStatus(memberPayment.getPaymentStatus())
-                .paymentAmount(memberPayment.getPaymentAmount())
-                .targetDate(memberPayment.getPartySettlement().getTargetDate())
+                .memberPaymentId(projection.getMemberPaymentId())
+                .partyName(projection.getPartyName())
+                .ottName(projection.getOttName())
+                .planName(projection.getPlanName())
+                .paymentStatus(projection.getPaymentStatus())
+                .paymentAmount(projection.getPaymentAmount())
+                .targetDate(projection.getTargetDate())
                 .dDay(dDay)
                 .build();
     }
 
     //MemberPayment 리스트->pageResDto
-    public static PageResDto toCurrentMemberPaymentPage(
-            List<MemberPayment> payments,
+    public static PageResDto<SettlementResDto.CurrentMemberPaymentInfo> toCurrentMemberPaymentPage(
+            List<CurrentMemberPaymentProjection> payments,
             List<Integer> dDayList,
             boolean isLast,
             Long nextCursor
