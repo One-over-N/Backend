@@ -35,7 +35,9 @@ public class SettlementConverter {
 
         //dDay+memberPayment
         for(int i=0; i<payments.size(); i++){
-            infoList.add(toPaymentInfo(payments.get(i), dDayList.get(i)));
+            Integer dDay=(i<dDayList.size())?dDayList.get(i):null;
+
+            infoList.add(toPaymentInfo(payments.get(i), dDay));
         }
 
         //pageResDto로 변환

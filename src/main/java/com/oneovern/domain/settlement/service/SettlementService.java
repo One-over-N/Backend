@@ -7,11 +7,14 @@ import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProject
 import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
 import com.oneovern.global.PageResDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,14 +24,18 @@ import java.util.stream.Collectors;
 public class SettlementService {
 
     private final MemberPaymentRepository memberPaymentRepository;
+    private final Clock clock;
+
+    @Value("${app.paging.default-size}")
+    private int defaultPageSize;
 
     //이번 달 정산
     public PageResDto<SettlementResDto.CurrentMemberPaymentInfo> getCurrentMemberPayments(Member member, Long cursor) {
 
-        final int FIXED_SIZE=10;
+
 
         //이번 달 계산
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         LocalDate startDate=today.withDayOfMonth(1);
         LocalDate endDate=today.withDayOfMonth(today.lengthOfMonth());
 
@@ -38,14 +45,15 @@ public class SettlementService {
                 cursor,
                 startDate,
                 endDate,
-                FIXED_SIZE+1
+                defaultPageSize+1
         );
 
         //커서가 마지막 값인지 확인
         boolean isLast=true;
-        if(memberPayments.size()>FIXED_SIZE){
+        List<CurrentMemberPaymentProjection> modifiablePayments=new ArrayList<>(memberPayments);
+        if(modifiablePayments.size()>defaultPageSize){
             isLast=false;
-            memberPayments.remove(FIXED_SIZE); //마지막 값인지 확인하기 위해 조회한 값 제거
+            modifiablePayments.remove(defaultPageSize); //마지막 값인지 확인하기 위해 조회한 값 제거
         }
 
 

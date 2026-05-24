@@ -30,3 +30,7 @@ jwt:
     expiration:
         access: 1h #1시간
         refresh: 14d #2주
+
+app:
+  paging:
+    default-size: 10 #페이지 사이즈
