@@ -1,8 +1,8 @@
 package com.oneovern.domain.member.dto;
 
 import lombok.Builder;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class MemberResDto {
 
@@ -26,7 +26,18 @@ public class MemberResDto {
     public record MyPage(
             String nickname,
             String email,
-            int reliabilityScore
+            int reliabilityScore,
+            List<ReliabilityHistoryDto> reliabilityHistories
+    ){}
+
+    //마이페이지 '신뢰도 변동 이력' 데이터 상자
+    @Builder
+    public record ReliabilityHistoryDto(
+            Long historyId,
+            String reason,  // 변동 사유
+            Integer changeScore,
+            Integer afterScore,
+            LocalDateTime createdAt
     ){}
 
 }
