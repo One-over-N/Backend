@@ -30,7 +30,7 @@ public class MemberConverter {
     public static MemberResDto.MyPage toMyPageResDto(Member member, List<ReliabilityHistory> historyList) {
         List<MemberResDto.ReliabilityHistoryDto> historyDtoList = historyList.stream()
                 .map(MemberConverter::toReliabilityHistoryDto)
-                .collect(Collectors.toList());
+                .toList();
 
         return MemberResDto.MyPage.builder()
                 .nickname(member.getNickname())
