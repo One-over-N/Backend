@@ -4,9 +4,11 @@ import com.oneovern.domain.member.converter.MemberConverter;
 import com.oneovern.domain.member.dto.MemberReqDto;
 import com.oneovern.domain.member.dto.MemberResDto;
 import com.oneovern.domain.member.entity.Member;
+import com.oneovern.domain.member.entity.ReliabilityHistory;
 import com.oneovern.domain.member.exception.MemberException;
 import com.oneovern.domain.member.exception.code.MemberErrorCode;
 import com.oneovern.domain.member.repository.MemberRepository;
+import com.oneovern.domain.member.repository.ReliabilityHistoryRepository;
 import com.oneovern.global.security.entity.AuthMember;
 import com.oneovern.global.security.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final ReliabilityHistoryRepository reliabilityHistoryRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final RedisTemplate<String, String> redisTemplate;
@@ -116,7 +119,17 @@ public class MemberService {
     }
 
     //마이페이지 정보 조회
-    public MemberResDto.MyPage getMyPageInfo(Member member) {
-        return MemberConverter.toMyPageResDto(member);
+    @Transactional
+    public MemberResDto.MyPage getMyPageInfo(Member loginMember) {
+        if (loginMember == null) {
+            throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        Member member = memberRepository.findById(loginMember.getId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        List<ReliabilityHistory> limitedHistoryList = reliabilityHistoryRepository.findTop3ByMemberOrderByCreatedAtDesc(member);
+
+        return MemberConverter.toMyPageResDto(member, limitedHistoryList);
     }
 }
