@@ -114,4 +114,9 @@ public class MemberService {
             }
         }
     }
+
+    //마이페이지 정보 조회
+    public MemberResDto.MyPage getMyPageInfo(Member member) {
+        return MemberConverter.toMyPageResDto(member);
+    }
 }
