@@ -34,4 +34,9 @@ public class MemberReqDto {
             @Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하로 입력해주세요.")
             String password
     ){}
+
+    public static record UpdateProfileDto(
+            String nickname,
+            String email
+    ) {}
 }

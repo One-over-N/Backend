@@ -59,4 +59,9 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PartyMember> partyMembers=new ArrayList<>();
 
+    //마이페이지 프로필(닉네임, 이메일) 수정을 위한 메서드
+    public void updateProfile(String nickname, String email) {
+        this.nickname = nickname;
+        this.email = email;
+    }
 }
