@@ -22,7 +22,6 @@ public class MemberResDto {
     ){}
 
     //마이페이지 화면 상단 회원 정보
-    //마이페이지 화면 상단 회원 정보
     @Builder
     public record MyPage(
             String nickname,
