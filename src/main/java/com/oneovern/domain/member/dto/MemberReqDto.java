@@ -36,7 +36,14 @@ public class MemberReqDto {
     ){}
 
     public record UpdateProfileDto(
+            @jakarta.validation.constraints.NotBlank(message = "닉네임은 필수 입력 항목입니다.")
+            @jakarta.validation.constraints.Size(min = 2, max = 20, message = "닉네임은 2자 이상 20자 이하로 입력해주세요.")
+            @jakarta.validation.constraints.Pattern(regexp = "^[가-힣a-zA-Z0-9]*$", message = "닉네임에 특수문자는 사용할 수 없습니다.")
             String nickname,
+
+            @jakarta.validation.constraints.NotBlank(message = "이메일은 필수 입력 항목입니다.")
+            @jakarta.validation.constraints.Email(message = "올바른 이메일 형식이 아닙니다.")
+            @jakarta.validation.constraints.Size(max = 100, message = "이메일은 최대 100자까지 입력 가능합니다.")
             String email
     ) {}
 }
