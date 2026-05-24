@@ -117,6 +117,9 @@ public class MemberService {
 
     //마이페이지 정보 조회
     public MemberResDto.MyPage getMyPageInfo(Member member) {
+        if (member == null) {
+            throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+        }
         return MemberConverter.toMyPageResDto(member);
     }
 }
