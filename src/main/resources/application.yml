@@ -17,6 +17,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        default_batch_fetch_size: 100
 
   data:
     redis:
@@ -29,3 +30,7 @@ jwt:
     expiration:
         access: 1h #1시간
         refresh: 14d #2주
+
+app:
+  paging:
+    default-size: 10 #페이지 사이즈
