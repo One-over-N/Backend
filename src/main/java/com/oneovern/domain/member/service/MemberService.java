@@ -119,7 +119,6 @@ public class MemberService {
     }
 
     //마이페이지 정보 조회
-    @Transactional
     public MemberResDto.MyPage getMyPageInfo(Member loginMember) {
         if (loginMember == null) {
             throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
@@ -132,4 +131,27 @@ public class MemberService {
 
         return MemberConverter.toMyPageResDto(member, limitedHistoryList);
     }
+
+    //마이페이지 프로필 정보 수정 로직
+    @Transactional
+    public void updateProfile(Member loginMember, MemberReqDto.UpdateProfileDto request) {
+        if (loginMember == null) {
+            throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        Member member = memberRepository.findById(loginMember.getId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+        //입력된 이메일이 기존 이메일과 다른 경우에만 중복 검사 실행
+        if (!member.getEmail().equals(request.email())) {
+            if (memberRepository.existsByEmail(request.email())) {
+                // 기존 회원가입 시 쓰는 중복 에러코드(ALREADY_EXIST_MEMBER) 재활용
+                throw new MemberException(MemberErrorCode.ALREADY_EXIST_MEMBER);
+            }
+        }
+
+        //엔티티 데이터 변경
+        member.updateProfile(request.nickname(), request.email());
+    }
+
 }
