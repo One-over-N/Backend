@@ -35,7 +35,7 @@ public class MemberReqDto {
             String password
     ){}
 
-    public static record UpdateProfileDto(
+    public record UpdateProfileDto(
             String nickname,
             String email
     ) {}
