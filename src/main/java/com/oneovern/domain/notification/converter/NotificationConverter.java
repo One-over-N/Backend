@@ -4,6 +4,8 @@ import com.oneovern.domain.notification.dto.NotificationResDto;
 import com.oneovern.domain.notification.entity.Notification;
 import com.oneovern.global.PageResDto;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class NotificationConverter {
@@ -38,16 +40,19 @@ public class NotificationConverter {
                 .build();
     }
 
-    public static NotificationResDto.NotificationRead toNotificationRead(List<Notification> targetNotifications) {
+    public static NotificationResDto.NotificationRead toNotificationRead(List<Notification> targetNotifications, Clock clock) {
 
         //notification List->id List
         List<Long> readIds=targetNotifications.stream()
                 .map(Notification::getId)
                 .toList();
 
+        LocalDateTime updatedAt=targetNotifications
+                .isEmpty()?LocalDateTime.now(clock):targetNotifications.get(0).getUpdatedAt();
+
         return NotificationResDto.NotificationRead.builder()
                 .notificationIdList(readIds)
-                .updatedAt(targetNotifications.get(0).getUpdatedAt())
+                .updatedAt(updatedAt)
                 .build();
     }
 }
