@@ -25,8 +25,8 @@ public class Notification extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NotificationType notificationType;
 
-    @Column(name="message", nullable = false)
-    private String message;
+    @Column(name="content", nullable = false)
+    private String content;
 
     @Builder.Default
     @Column(name = "is_read", nullable = false)
