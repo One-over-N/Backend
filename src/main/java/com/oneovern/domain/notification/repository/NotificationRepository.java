@@ -37,4 +37,17 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     )
     List<Notification> findUnreadNotificationByMemberId(
             @Param("memberId") Long id);
+
+    @Query(
+            value = """
+            SELECT COUNT(*)
+            FROM notification n 
+            WHERE member_id=:memberId
+                AND is_read=false
+            """,
+            nativeQuery=true
+    )
+    Long countUnreadNotificationByMemberId(
+            @Param("memberId") Long id
+    );
 }
