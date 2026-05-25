@@ -47,7 +47,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             """,
             nativeQuery=true
     )
-    Integer countUnreadNotificationByMemberId(
+    Long countUnreadNotificationByMemberId(
             @Param("memberId") Long id
     );
 }

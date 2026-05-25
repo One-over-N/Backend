@@ -44,7 +44,7 @@ public class NotificationController {
 
     //읽지 않은 알림 개수 조회
     @GetMapping("/unread-count")
-    public ApiResponse<Integer> getUnreadNotificationCount(
+    public ApiResponse<Long> getUnreadNotificationCount(
             @AuthUser Member member
     )
     {

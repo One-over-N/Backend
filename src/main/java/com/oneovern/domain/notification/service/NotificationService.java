@@ -90,8 +90,8 @@ public class NotificationService {
         return NotificationConverter.toNotificationRead(targetNotifications, clock);
     }
 
-    public Integer getUnreadNotificationCount(Member member) {
-        Integer unreadNotificationCount=notificationRepository.countUnreadNotificationByMemberId(member.getId());
+    public Long getUnreadNotificationCount(Member member) {
+        Long unreadNotificationCount=notificationRepository.countUnreadNotificationByMemberId(member.getId());
 
         return unreadNotificationCount;
     }
