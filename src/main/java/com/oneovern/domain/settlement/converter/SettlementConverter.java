@@ -5,9 +5,13 @@ import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProject
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentHistoryProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
 import com.oneovern.global.PageResDto;
+import com.oneovern.global.apiPayload.code.GeneralErrorCode;
+import com.oneovern.global.apiPayload.exception.ProjectException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class SettlementConverter {
@@ -69,7 +73,9 @@ public class SettlementConverter {
                 .ottName(projection.getOttName())
                 .planName(projection.getPlanName())
                 .paymentAmount(projection.getPaymentAmount())
-                .paidAt(projection.getPaidAt().toLocalDate())
+                .paidAt(Optional.ofNullable(projection.getPaidAt())
+                        .map(LocalDateTime::toLocalDate)
+                .orElseThrow(()->new ProjectException(GeneralErrorCode.DATA_INTEGRITY_VIOLATION)))
                 .build();
     }
 
