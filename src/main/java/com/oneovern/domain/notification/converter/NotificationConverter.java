@@ -37,4 +37,17 @@ public class NotificationConverter {
                 .nextCursor(nextCursor)
                 .build();
     }
+
+    public static NotificationResDto.NotificationRead toNotificationRead(List<Notification> targetNotifications) {
+
+        //notification List->id List
+        List<Long> readIds=targetNotifications.stream()
+                .map(Notification::getId)
+                .toList();
+
+        return NotificationResDto.NotificationRead.builder()
+                .notificationIdList(readIds)
+                .updatedAt(targetNotifications.get(0).getUpdatedAt())
+                .build();
+    }
 }

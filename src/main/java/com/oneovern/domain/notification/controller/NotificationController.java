@@ -11,6 +11,8 @@ import com.oneovern.global.security.annotation.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
@@ -27,5 +29,16 @@ public class NotificationController {
     {
         BaseSuccessCode code= NotificationSuccessCode.GET_NOTIFICATION_LIST;
         return ApiResponse.onSuccess(code, notificationService.getNotificationList(member, cursor));
+    }
+
+    //알림 목록 조회
+    @PatchMapping("")
+    public ApiResponse<NotificationResDto.NotificationRead> readNotifications(
+            @AuthUser Member member,
+            @RequestBody List<String> notificationIdList
+    )
+    {
+        BaseSuccessCode code= NotificationSuccessCode.READ_NOTIFICATION;
+        return ApiResponse.onSuccess(code, notificationService.readNotifications(member, notificationIdList));
     }
 }

@@ -4,6 +4,8 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.notification.converter.NotificationConverter;
 import com.oneovern.domain.notification.dto.NotificationResDto;
 import com.oneovern.domain.notification.entity.Notification;
+import com.oneovern.domain.notification.exception.NotificationException;
+import com.oneovern.domain.notification.exception.code.NotificationErrorCode;
 import com.oneovern.domain.notification.repository.NotificationRepository;
 import com.oneovern.global.PageResDto;
 import lombok.RequiredArgsConstructor;
@@ -47,5 +49,42 @@ public class NotificationService {
 
         //notificationList->PageResDto
         return NotificationConverter.toNotificationListPage(notificationList, isLast, nextCursor);
+    }
+
+    // 알림 읽음 상태 변경
+    @Transactional
+    public NotificationResDto.NotificationRead readNotifications(
+            Member member,
+            List<String> notificationIdList) {
+
+        //notificationIdList 값 확인
+        if(notificationIdList==null||notificationIdList.isEmpty()){
+            throw new NotificationException(NotificationErrorCode.NO_NOTIFICATION_TO_READ);
+        }
+
+        List<Notification> targetNotifications;
+        //전체 읽음 처리
+        if(notificationIdList.contains("ALL")){
+            targetNotifications=notificationRepository.findUnreadNotificationByMemberId(member.getId());
+        }
+        else{ //리스트의 알림만 읽음 처리
+            List<Long> ids=notificationIdList.stream()
+                    .map(Long::parseLong)
+                    .toList();
+
+            targetNotifications=notificationRepository.findAllById(ids);
+
+            //member의 notification인지 검증
+            targetNotifications.stream()
+                    .filter(n->!n.getMember().getId().equals(member.getId()))
+                    .findAny()
+                    .ifPresent(n->{throw new NotificationException(NotificationErrorCode.NO_NOTIFICATION_TO_READ);});
+        }
+
+        //isRead 상태 변경
+        targetNotifications.forEach(Notification::readNotification);
+
+        //->notificationResDto.notificationStatusUpdate
+        return NotificationConverter.toNotificationRead(targetNotifications);
     }
 }
