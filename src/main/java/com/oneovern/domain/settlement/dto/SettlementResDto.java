@@ -4,6 +4,7 @@ import com.oneovern.domain.settlement.enums.PaymentStatus;
 import lombok.Builder;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class SettlementResDto {
 
@@ -35,5 +36,12 @@ public class SettlementResDto {
             String planName,
             Integer paymentAmount,
             LocalDate paidAt
+    ){}
+
+    @Builder
+    public record PaymentStatusUpdate(
+        Long memberPaymentId,
+        PaymentStatus paymentStatus,
+        LocalDateTime updatedAt
     ){}
 }

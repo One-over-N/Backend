@@ -4,6 +4,7 @@ import com.oneovern.domain.settlement.dto.SettlementResDto;
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentHistoryProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
+import com.oneovern.domain.settlement.entity.MemberPayment;
 import com.oneovern.global.PageResDto;
 import com.oneovern.global.apiPayload.code.GeneralErrorCode;
 import com.oneovern.global.apiPayload.exception.ProjectException;
@@ -94,6 +95,14 @@ public class SettlementConverter {
                 .dataList(historyList)
                 .isLast(isLast)
                 .nextCursor(nextCursor)
+                .build();
+    }
+
+    public static SettlementResDto.PaymentStatusUpdate toPaymentStatusUpdate(MemberPayment memberPayment) {
+        return SettlementResDto.PaymentStatusUpdate.builder()
+                .memberPaymentId(memberPayment.getId())
+                .paymentStatus(memberPayment.getPaymentStatus())
+                .updatedAt(memberPayment.getUpdatedAt())
                 .build();
     }
 }

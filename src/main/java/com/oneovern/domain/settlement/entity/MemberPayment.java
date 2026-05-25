@@ -41,4 +41,9 @@ public class MemberPayment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
+
+    public void updateStatus(PaymentStatus paymentStatus, LocalDateTime now) {
+        this.paymentStatus=paymentStatus;
+        this.paidAt = now;
+    }
 }

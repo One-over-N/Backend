@@ -6,6 +6,10 @@ import com.oneovern.domain.settlement.dto.SettlementResDto;
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentHistoryProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
+import com.oneovern.domain.settlement.entity.MemberPayment;
+import com.oneovern.domain.settlement.enums.PaymentStatus;
+import com.oneovern.domain.settlement.exception.SettlementException;
+import com.oneovern.domain.settlement.exception.code.SettlementErrorCode;
 import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
 import com.oneovern.global.PageResDto;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,5 +127,29 @@ public class SettlementService {
 
         // projection->PageResDto
         return SettlementConverter.toMemberPaymentHistoryPage(modifiablePaymentHistory, isLast, nextCursor);
+    }
+
+    @Transactional
+    public SettlementResDto.PaymentStatusUpdate updateMemberPaymentStatus(
+            Member member,
+            Long memberPaymentId,
+            PaymentStatus paymentStatus) {
+
+        // memberPayment 조회
+        MemberPayment memberPayment=memberPaymentRepository
+                .findById(memberPaymentId)
+                .orElseThrow(()->new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_NOT_FOUND));
+
+        // member의 memberPayment가 맞는지 확인
+        if(!memberPayment.getMember().getId().equals(member.getId())){
+            throw new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_ACCESS_DENIED);
+        }
+
+        // memberPayment PAID로 상태 변경
+        memberPayment.updateStatus(paymentStatus, LocalDateTime.now(clock));
+
+        // memberPayment->SettlementResDto.PaidMarking
+        return SettlementConverter.toPaymentStatusUpdate(memberPayment);
+
     }
 }
