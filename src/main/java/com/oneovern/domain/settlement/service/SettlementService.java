@@ -121,7 +121,7 @@ public class SettlementService {
 
         // nextCursor 계산
         Long nextCursor=null;
-        if(!modifiablePaymentHistory.isEmpty() && !isLast){
+        if (!modifiablePaymentHistory.isEmpty() && !isLast) {
             nextCursor=modifiablePaymentHistory.get(modifiablePaymentHistory.size()-1).getMemberPaymentId();
         }
 
@@ -136,16 +136,16 @@ public class SettlementService {
             PaymentStatus paymentStatus) {
 
         // memberPayment 조회
-        MemberPayment memberPayment=memberPaymentRepository
+        MemberPayment memberPayment = memberPaymentRepository
                 .findById(memberPaymentId)
-                .orElseThrow(()->new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_NOT_FOUND));
+                .orElseThrow(() -> new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_NOT_FOUND));
 
         // member의 memberPayment가 맞는지 확인
         if(!memberPayment.getMember().getId().equals(member.getId())){
             throw new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_ACCESS_DENIED);
         }
 
-        // memberPayment PAID로 상태 변경
+        // memberPayment 상태 변경
         memberPayment.updateStatus(paymentStatus, LocalDateTime.now(clock));
 
         // memberPayment->SettlementResDto.PaidMarking
