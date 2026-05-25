@@ -58,9 +58,9 @@ public class SecurityConfig {
                 "/swagger-resources/**",
                 "/v3/api-docs/**",
                 //로그인
-                "/auth/login",
+                "/api/auth/login",
                 //회원가입
-                "/auth/signup"
+                "/api/auth/signup"
         );
     }
 

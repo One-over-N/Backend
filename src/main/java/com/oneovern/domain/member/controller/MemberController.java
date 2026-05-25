@@ -17,7 +17,7 @@ import com.oneovern.domain.member.dto.MemberReqDto;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/members")
+@RequestMapping("/api/members")
 public class MemberController {
 
     private final MemberService memberService;
