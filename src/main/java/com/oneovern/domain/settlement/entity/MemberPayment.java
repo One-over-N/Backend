@@ -43,7 +43,14 @@ public class MemberPayment extends BaseEntity {
     private Member member;
 
     public void updateStatus(PaymentStatus paymentStatus, LocalDateTime now) {
+        //동일한 상태로 변경 요청시
+        if (this.paymentStatus == paymentStatus) {
+            return;
+        }
+
         this.paymentStatus=paymentStatus;
-        this.paidAt = now;
+
+        //PAID일때만 현재 시간으로 변경
+        this.paidAt = (paymentStatus==PaymentStatus.PAID)?now:null;
     }
 }

@@ -50,7 +50,7 @@ public class SettlementController {
 
     // 납부 처리
     @PatchMapping("/{member-payment-id}/status")
-    public ApiResponse<SettlementResDto.PaymentStatusUpdate> changeToPaid(
+    public ApiResponse<SettlementResDto.PaymentStatusUpdate> updateMemberPaymentStatus(
             @AuthUser Member member,
             @PathVariable("member-payment-id") Long memberPaymentId,
             @RequestBody PaymentStatus paymentStatus
