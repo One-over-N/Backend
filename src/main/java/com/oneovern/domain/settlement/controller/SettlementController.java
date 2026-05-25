@@ -2,6 +2,7 @@ package com.oneovern.domain.settlement.controller;
 
 import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.settlement.dto.SettlementResDto;
+import com.oneovern.domain.settlement.enums.PaymentStatus;
 import com.oneovern.domain.settlement.exception.code.SettlementSuccessCode;
 import com.oneovern.domain.settlement.service.SettlementService;
 import com.oneovern.global.ApiResponse;
@@ -9,10 +10,7 @@ import com.oneovern.global.PageResDto;
 import com.oneovern.global.apiPayload.code.BaseSuccessCode;
 import com.oneovern.global.security.annotation.AuthUser;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,4 +47,16 @@ public class SettlementController {
         BaseSuccessCode code= SettlementSuccessCode.GET_MEMBER_PAYMENT_HISTORY;
         return ApiResponse.onSuccess(code, settlementService.getMemberPaymentHistory(member, cursor));
     }
+
+    // 납부 처리
+    @PatchMapping("/{member-payment-id}/status")
+    public ApiResponse<SettlementResDto.PaymentStatusUpdate> changeToPaid(
+            @AuthUser Member member,
+            @PathVariable("member-payment-id") Long memberPaymentId,
+            @RequestBody PaymentStatus paymentStatus
+    ){
+        BaseSuccessCode code=SettlementSuccessCode.CHANGE_TO_PAID;
+        return ApiResponse.onSuccess(code, settlementService.updateMemberPaymentStatus(member, memberPaymentId, paymentStatus));
+    }
+
 }
