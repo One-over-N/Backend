@@ -30,7 +30,7 @@ public class NotificationService {
 
         //알림 목록 조회
         List<Notification> notificationList= new ArrayList<>(
-                notificationRepository.findByIdAndCursor(member.getId(), cursor, defaultPageSize+1));
+                notificationRepository.findByMemberIdAndCursor(member.getId(), cursor, defaultPageSize+1));
 
         //마지막인지 확인
         boolean isLast=true;

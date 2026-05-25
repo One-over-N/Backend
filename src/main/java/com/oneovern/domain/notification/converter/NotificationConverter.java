@@ -5,7 +5,6 @@ import com.oneovern.domain.notification.entity.Notification;
 import com.oneovern.global.PageResDto;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class NotificationConverter {
 
@@ -30,7 +29,7 @@ public class NotificationConverter {
     ){
         List<NotificationResDto.NotificationInfo> notificationInfoList = notificationList.stream()
                 .map(NotificationConverter::toNotificationInfo)
-                .collect(Collectors.toList());
+                .toList();
 
         return PageResDto.<NotificationResDto.NotificationInfo>builder()
                 .dataList(notificationInfoList)
