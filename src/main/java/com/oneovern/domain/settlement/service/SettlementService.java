@@ -103,7 +103,7 @@ public class SettlementService {
         List<MemberPaymentHistoryProjection> memberPaymentHistory=memberPaymentRepository.findMemberPaymentHistoryByCursor(
                 member.getId(),
                 cursor,
-                defaultPageSize
+                defaultPageSize + 1
         );
 
         // 마지막 여부 확인
