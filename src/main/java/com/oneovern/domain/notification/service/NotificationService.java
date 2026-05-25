@@ -80,7 +80,7 @@ public class NotificationService {
             targetNotifications.stream()
                     .filter(n->!n.getMember().getId().equals(member.getId()))
                     .findAny()
-                    .ifPresent(n->{throw new NotificationException(NotificationErrorCode.NO_NOTIFICATION_TO_READ);});
+                    .ifPresent(n->{throw new NotificationException(NotificationErrorCode.NOTIFICATION_NOT_OWNED);});
         }
 
         //isRead 상태 변경

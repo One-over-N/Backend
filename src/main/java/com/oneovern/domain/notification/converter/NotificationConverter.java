@@ -47,12 +47,9 @@ public class NotificationConverter {
                 .map(Notification::getId)
                 .toList();
 
-        LocalDateTime updatedAt=targetNotifications
-                .isEmpty()?LocalDateTime.now(clock):targetNotifications.get(0).getUpdatedAt();
-
         return NotificationResDto.NotificationRead.builder()
                 .notificationIdList(readIds)
-                .updatedAt(updatedAt)
+                .updatedAt(LocalDateTime.now(clock))
                 .build();
     }
 }

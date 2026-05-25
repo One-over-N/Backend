@@ -31,7 +31,7 @@ public class NotificationController {
         return ApiResponse.onSuccess(code, notificationService.getNotificationList(member, cursor));
     }
 
-    //알림 목록 조회
+    //알림 읽음 상태 변경
     @PatchMapping("")
     public ApiResponse<NotificationResDto.NotificationRead> readNotifications(
             @AuthUser Member member,
