@@ -39,4 +39,8 @@ public class Notification extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Member member;
+
+    public void readNotification() {
+        this.isRead=true;
+    }
 }

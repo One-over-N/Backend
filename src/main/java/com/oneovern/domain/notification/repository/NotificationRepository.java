@@ -25,4 +25,16 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             @Param("memberId") Long id,
             @Param("cursor") Long cursor,
             @Param("size") int size);
+
+    @Query(
+            value = """
+            SELECT n.*
+            FROM notification n 
+            WHERE member_id=:memberId
+                AND is_read=false
+            """,
+            nativeQuery=true
+    )
+    List<Notification> findUnreadNotificationByMemberId(
+            @Param("memberId") Long id);
 }
