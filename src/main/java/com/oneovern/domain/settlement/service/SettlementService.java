@@ -61,8 +61,8 @@ public class SettlementService {
 
         //nextCursor 계산
         Long nextCursor = null;
-        if (!memberPayments.isEmpty() && !isLast) {
-            nextCursor = memberPayments.get(memberPayments.size() - 1).getMemberPaymentId(); // 마지막 데이터의 PK를 커서로 지정
+        if (!modifiablePayments.isEmpty() && !isLast) {
+            nextCursor = memberPayments.get(modifiablePayments.size() - 1).getMemberPaymentId(); // 마지막 데이터의 PK를 커서로 지정
         }
 
         //dDay 계산
