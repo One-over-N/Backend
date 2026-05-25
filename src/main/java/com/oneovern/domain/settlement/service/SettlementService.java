@@ -4,6 +4,7 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.settlement.converter.SettlementConverter;
 import com.oneovern.domain.settlement.dto.SettlementResDto;
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
+import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
 import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
 import com.oneovern.global.PageResDto;
 import lombok.RequiredArgsConstructor;
@@ -76,5 +77,22 @@ public class SettlementService {
 
         //payments->PageResDto
         return SettlementConverter.toCurrentMemberPaymentPage(memberPayments, dDayList , isLast, nextCursor);
+    }
+
+    public SettlementResDto.MemberPaymentSummary getMemberPaymentSummary(Member member) {
+
+        //이번 달 계산
+        LocalDate today = LocalDate.now(clock);
+        LocalDate startDate=today.withDayOfMonth(1);
+        LocalDate endDate=today.withDayOfMonth(today.lengthOfMonth());
+
+        // 이번 달 요약 조회
+        MemberPaymentSummaryProjection projection=memberPaymentRepository.findMemberPaymentSummaryByMemberAndDate(
+                member.getId(),
+                startDate,
+                endDate
+        );
+
+        return SettlementConverter.toMemberPaymentSummary(projection);
     }
 }

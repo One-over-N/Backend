@@ -2,6 +2,7 @@ package com.oneovern.domain.settlement.converter;
 
 import com.oneovern.domain.settlement.dto.SettlementResDto;
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
+import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
 import com.oneovern.global.PageResDto;
 
 import java.util.ArrayList;
@@ -49,4 +50,12 @@ public class SettlementConverter {
     }
 
 
+    public static SettlementResDto.MemberPaymentSummary toMemberPaymentSummary(MemberPaymentSummaryProjection projection) {
+        return SettlementResDto.MemberPaymentSummary.builder()
+                .currentMonthBillingAmount(projection.getCurrentMonthBillingAmount())
+                .savedAmount(projection.getSavedAmount())
+                .completedPaymentCount(projection.getCompletedPaymentCount())
+                .totalPaymentCount(projection.getTotalPaymentCount())
+                .build();
+    }
 }
