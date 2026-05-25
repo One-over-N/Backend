@@ -26,4 +26,14 @@ public class SettlementResDto {
             Integer completedPaymentCount,
             Integer totalPaymentCount
     ){}
+
+    @Builder
+    public record MemberPaymentHistory(
+            Long memberPaymentId,
+            String partyName,
+            String ottName,
+            String planName,
+            Integer paymentAmount,
+            LocalDate paidAt
+    ){}
 }
