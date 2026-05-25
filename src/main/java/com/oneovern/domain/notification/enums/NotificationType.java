@@ -7,8 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum NotificationType {
     PAYMENT_REQUEST("정산 요청"),
-    JOIN_REQUEST("가입 요청"),
-    JOIN_APPROVED("가입 승인");
+    JOIN_REQUEST("파티 가입 요청"),
+    JOIN_APPROVED("파티 가입 승인");
 
     private final String description;
 }
