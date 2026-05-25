@@ -1,6 +1,7 @@
 package com.oneovern.domain.settlement.repository;
 
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
+import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
 import com.oneovern.domain.settlement.entity.MemberPayment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -32,4 +33,37 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment,Lon
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("size") int size);
+
+    @Query(
+            value = """ 
+            SELECT 
+                -- currentMonthBillingAmount: 이번 달 지불해야 하는 총 금액
+                COALESCE(SUM(mp.payment_amount), 0) AS currentMonthBillingAmount, 
+                            
+                -- savedAmount: ~이번 달 말 전체 누적 절약 금액
+                (SELECT COALESCE(SUM(sub_ps.target_amount-sub_mp.payment_amount), 0)
+                    FROM member_payment sub_mp
+                    JOIN party_settlement sub_ps ON sub_mp.party_settlement_id=sub_ps.party_settlement_id
+                    WHERE sub_mp.member_id=:memberId
+                        AND sub_ps.target_date<=:endDate) AS savedAmount, 
+                
+                -- completedPaymentCount: 이번 달 실 결제 완료 수
+                COUNT(CASE WHEN mp.payment_status='PAID' THEN 1 END) AS completedPaymentCount, 
+                
+                -- totalPaymentCount: 이번 달 총 결제(완료+미완료) 수
+                COUNT(mp.member_payment_id) AS totalPaymentCount
+                        
+            FROM member_payment mp
+            JOIN party_settlement ps ON mp.party_settlement_id=ps.party_settlement_id
+            WHERE mp.member_id=:memberId
+                AND ps.target_date BETWEEN :startDate AND :endDate
+            """,
+            nativeQuery = true
+    )
+    MemberPaymentSummaryProjection findMemberPaymentSummaryByMemberAndDate(
+            @Param("memberId") Long id,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+
 }

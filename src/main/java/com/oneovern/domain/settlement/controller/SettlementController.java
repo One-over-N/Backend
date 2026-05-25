@@ -30,4 +30,13 @@ public class SettlementController {
         BaseSuccessCode code= SettlementSuccessCode.GET_CURRENT_MEMBER_PAYMENTS;
         return ApiResponse.onSuccess(code, settlementService.getCurrentMemberPayments(member, cursor));
     }
+
+    // 정산 요약
+    @GetMapping("/summary")
+    public ApiResponse<SettlementResDto.MemberPaymentSummary> getMemberPaymentSummary(
+            @AuthUser Member member
+    ){
+        BaseSuccessCode code=SettlementSuccessCode.GET_MEMBER_PAYMENT_SUMMARY;
+        return ApiResponse.onSuccess(code, settlementService.getMemberPaymentSummary(member));
+    }
 }
