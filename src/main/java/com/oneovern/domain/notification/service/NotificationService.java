@@ -89,4 +89,10 @@ public class NotificationService {
         //->notificationResDto.notificationStatusUpdate
         return NotificationConverter.toNotificationRead(targetNotifications, clock);
     }
+
+    public Integer getUnreadNotificationCount(Member member) {
+        Integer unreadNotificationCount=notificationRepository.countUnreadNotificationByMemberId(member.getId());
+
+        return unreadNotificationCount;
+    }
 }

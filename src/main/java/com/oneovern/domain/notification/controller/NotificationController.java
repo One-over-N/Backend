@@ -41,4 +41,14 @@ public class NotificationController {
         BaseSuccessCode code= NotificationSuccessCode.READ_NOTIFICATION;
         return ApiResponse.onSuccess(code, notificationService.readNotifications(member, notificationIdList));
     }
+
+    //읽지 않은 알림 개수 조회
+    @GetMapping("/unread-count")
+    public ApiResponse<Integer> getUnreadNotificationCount(
+            @AuthUser Member member
+    )
+    {
+        BaseSuccessCode code= NotificationSuccessCode.GET_UNREAD_NOTIFICATION_COUNT;
+        return ApiResponse.onSuccess(code, notificationService.getUnreadNotificationCount(member));
+    }
 }
