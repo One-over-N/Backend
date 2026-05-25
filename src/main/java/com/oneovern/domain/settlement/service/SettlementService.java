@@ -4,6 +4,7 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.settlement.converter.SettlementConverter;
 import com.oneovern.domain.settlement.dto.SettlementResDto;
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
+import com.oneovern.domain.settlement.dto.projection.MemberPaymentHistoryProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
 import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
 import com.oneovern.global.PageResDto;
@@ -94,5 +95,32 @@ public class SettlementService {
         );
 
         return SettlementConverter.toMemberPaymentSummary(projection);
+    }
+
+    public PageResDto<SettlementResDto.MemberPaymentHistory> getMemberPaymentHistory(Member member, Long cursor) {
+
+        // 납부 내역 기록 조회
+        List<MemberPaymentHistoryProjection> memberPaymentHistory=memberPaymentRepository.findMemberPaymentHistoryByCursor(
+                member.getId(),
+                cursor,
+                defaultPageSize
+        );
+
+        // 마지막 여부 확인
+        boolean isLast=true;
+        List<MemberPaymentHistoryProjection> modifiablePaymentHistory=new ArrayList<>(memberPaymentHistory);
+        if(modifiablePaymentHistory.size()>defaultPageSize){
+            isLast=false;
+            modifiablePaymentHistory.remove(defaultPageSize);
+        }
+
+        // nextCursor 계산
+        Long nextCursor=null;
+        if(!modifiablePaymentHistory.isEmpty() && !isLast){
+            nextCursor=modifiablePaymentHistory.get(modifiablePaymentHistory.size()-1).getMemberPaymentId();
+        }
+
+        // projection->PageResDto
+        return SettlementConverter.toMemberPaymentHistoryPage(modifiablePaymentHistory, isLast, nextCursor);
     }
 }

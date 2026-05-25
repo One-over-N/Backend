@@ -2,11 +2,13 @@ package com.oneovern.domain.settlement.converter;
 
 import com.oneovern.domain.settlement.dto.SettlementResDto;
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
+import com.oneovern.domain.settlement.dto.projection.MemberPaymentHistoryProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
 import com.oneovern.global.PageResDto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SettlementConverter {
 
@@ -56,6 +58,36 @@ public class SettlementConverter {
                 .savedAmount(projection.getSavedAmount())
                 .completedPaymentCount(projection.getCompletedPaymentCount())
                 .totalPaymentCount(projection.getTotalPaymentCount())
+                .build();
+    }
+
+    //projection->MemberPaymentHistory
+    public static SettlementResDto.MemberPaymentHistory toMemberPaymentHistory(MemberPaymentHistoryProjection projection) {
+        return SettlementResDto.MemberPaymentHistory.builder()
+                .memberPaymentId(projection.getMemberPaymentId())
+                .partyName(projection.getPartyName())
+                .ottName(projection.getOttName())
+                .planName(projection.getPlanName())
+                .paymentAmount(projection.getPaymentAmount())
+                .paidAt(projection.getPaidAt().toLocalDate())
+                .build();
+    }
+
+    //projection -> PageResDto
+    public static PageResDto<SettlementResDto.MemberPaymentHistory> toMemberPaymentHistoryPage(
+            List<MemberPaymentHistoryProjection> projectionList,
+            Boolean isLast,
+            Long nextCursor)
+    {
+        //하나씩 projection->MemberPaymentHistory
+        List<SettlementResDto.MemberPaymentHistory> historyList = projectionList.stream()
+                .map(SettlementConverter::toMemberPaymentHistory)
+                .collect(Collectors.toList());
+
+        return PageResDto.<SettlementResDto.MemberPaymentHistory>builder()
+                .dataList(historyList)
+                .isLast(isLast)
+                .nextCursor(nextCursor)
                 .build();
     }
 }

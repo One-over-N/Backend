@@ -39,4 +39,14 @@ public class SettlementController {
         BaseSuccessCode code=SettlementSuccessCode.GET_MEMBER_PAYMENT_SUMMARY;
         return ApiResponse.onSuccess(code, settlementService.getMemberPaymentSummary(member));
     }
+
+    // 전체 납부 기록
+    @GetMapping("/history")
+    public ApiResponse<PageResDto<SettlementResDto.MemberPaymentHistory>> getMemberPaymentHistory(
+            @AuthUser Member member,
+            @RequestParam(name = "cursor", required = false) Long cursor
+    ){
+        BaseSuccessCode code= SettlementSuccessCode.GET_MEMBER_PAYMENT_HISTORY;
+        return ApiResponse.onSuccess(code, settlementService.getMemberPaymentHistory(member, cursor));
+    }
 }

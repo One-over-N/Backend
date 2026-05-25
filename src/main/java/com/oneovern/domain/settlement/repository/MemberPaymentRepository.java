@@ -1,6 +1,7 @@
 package com.oneovern.domain.settlement.repository;
 
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
+import com.oneovern.domain.settlement.dto.projection.MemberPaymentHistoryProjection;
 import com.oneovern.domain.settlement.dto.projection.MemberPaymentSummaryProjection;
 import com.oneovern.domain.settlement.entity.MemberPayment;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -66,4 +67,27 @@ public interface MemberPaymentRepository extends JpaRepository<MemberPayment,Lon
             @Param("endDate") LocalDate endDate);
 
 
+    @Query(
+            value = """
+                    SELECT mp.member_payment_id AS memberPaymentId, 
+                        p.party_name AS partyName, o.ott_name AS ottName, op.plan_name AS planName,
+                        mp.payment_amount AS paymentAmount, mp.paid_at AS paidAt
+                    FROM member_payment mp
+                        JOIN party_settlement ps ON mp.party_settlement_id=ps.party_settlement_id -- party 조회용
+                        JOIN party p ON ps.party_id = p.party_id  -- party_name,ott 조회용
+                        JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id  -- plan_name, ott_plan 조회용
+                        JOIN ott o ON op.ott_id = o.ott_id -- ott_name 조회용
+                    WHERE mp.member_id=:memberId
+                        AND mp.payment_status='PAID'
+                        AND (:cursor IS NULL OR mp.member_payment_id<:cursor) -- 커서보다 작은지 확인
+                    ORDER BY mp.member_payment_id DESC -- 최신순 정렬(id 특성상 클 수록 최신)
+                    LIMIT :size -- size만큼 제한
+            """,
+            nativeQuery = true
+    )
+    List<MemberPaymentHistoryProjection> findMemberPaymentHistoryByCursor(
+            @Param("memberId") Long id,
+            @Param("cursor") Long cursor,
+            @Param("size") int size
+    );
 }
