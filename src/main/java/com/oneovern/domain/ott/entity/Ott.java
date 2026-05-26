@@ -1,4 +1,4 @@
-package com.oneovern.domain.ott.entity; // 1. 주소 entity까지 정확히 적기
+package com.oneovern.domain.ott.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
