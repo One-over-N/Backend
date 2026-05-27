@@ -56,7 +56,9 @@ public class SecurityConfig {
                 "/swagger-resources/**",
                 "/v3/api-docs/**",
                 "/api/auth/login",
-                "/api/auth/signup"
+                "/api/auth/signup",
+                "/api/otts",
+                "/api/otts/**"
         );
     }
 

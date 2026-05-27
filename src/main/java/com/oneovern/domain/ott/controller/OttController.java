@@ -1,33 +1,31 @@
 package com.oneovern.domain.ott.controller;
 
+import com.oneovern.domain.ott.converter.OttConverter;
 import com.oneovern.domain.ott.dto.OttResDto;
 import com.oneovern.domain.ott.dto.OttPlanResDto;
 import com.oneovern.domain.ott.service.OttService;
+import com.oneovern.global.ApiResponse;
+import com.oneovern.global.apiPayload.code.GeneralSuccessCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/otts")
+@RequestMapping("/api/otts")
 public class OttController {
 
     private final OttService ottService;
 
     @GetMapping
-    public ResponseEntity<List<OttResDto>> getOtts() {
-        List<OttResDto> ottList = ottService.getOttList().stream()
-                .map(OttResDto::from)
-                .toList();
-        return ResponseEntity.ok(ottList);
+    public ApiResponse<List<OttResDto>> getOtts() {
+        List<OttResDto> resDtoList = OttConverter.toOttResDtoList(ottService.getOttList());
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, resDtoList);
     }
 
     @GetMapping("/{ottId}/plans")
-    public ResponseEntity<List<OttPlanResDto>> getOttPlans(@PathVariable Long ottId) {
-        List<OttPlanResDto> plans = ottService.getOttPlans(ottId).stream()
-                .map(OttPlanResDto::from)
-                .toList();
-        return ResponseEntity.ok(plans);
+    public ApiResponse<List<OttPlanResDto>> getOttPlans(@PathVariable Long ottId) {
+        List<OttPlanResDto> resDtoList = OttConverter.toOttPlanResDtoList(ottService.getOttPlans(ottId));
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, resDtoList);
     }
 }

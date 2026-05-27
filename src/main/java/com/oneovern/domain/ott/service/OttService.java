@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import com.oneovern.domain.ott.exception.OttException;
+import com.oneovern.domain.ott.exception.OttErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,9 @@ public class OttService {
     }
 
     public List<OttPlan> getOttPlans(Long ottId) {
-        return ottPlanRepository.findByOttOttServiceId(ottId);
+        if (!ottRepository.existsById(ottId)) {
+            throw new OttException(OttErrorCode.OTT_NOT_FOUND);
+        }
+        return ottPlanRepository.findByOttId(ottId);
     }
 }

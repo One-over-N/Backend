@@ -1,22 +1,30 @@
 package com.oneovern.domain.ott.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Table(name = "ott")
 public class Ott {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ott_service_id")
-    private Long ottServiceId;
+    @Column(name = "ott_id")
+    private Long id;
 
-    @Column(name = "service_name", nullable = false, length = 100)
+    @Column(name = "ott_name", nullable = false, length = 100)
     private String serviceName;
 
     @Column(name = "image_url", length = 512)
     private String imageUrl;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "ott", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OttPlan> ottPlans = new ArrayList<>();
 }

@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface OttPlanRepository extends JpaRepository<OttPlan, Long> {
-    List<OttPlan> findByOttOttServiceId(Long ottId);
+    List<OttPlan> findByOttId(Long ottId);
 }
