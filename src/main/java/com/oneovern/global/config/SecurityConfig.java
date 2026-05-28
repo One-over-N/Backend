@@ -58,7 +58,8 @@ public class SecurityConfig {
                 "/api/auth/login",
                 "/api/auth/signup",
                 "/api/otts",
-                "/api/otts/**"
+                "/api/otts/**",
+                "/api/ott-service/**"
         );
     }
 
