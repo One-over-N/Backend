@@ -11,5 +11,4 @@ public class PartyReqDto {
     private String ottAccountPassword;
     private String bank;
     private String bankAccount;
-    private Long leaderId;
 }

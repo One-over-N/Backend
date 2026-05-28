@@ -5,12 +5,16 @@ import com.oneovern.domain.member.repository.MemberRepository;
 import com.oneovern.domain.ott.entity.OttPlan;
 import com.oneovern.domain.ott.repository.OttPlanRepository;
 import com.oneovern.domain.party.dto.PartyReqDto;
+import com.oneovern.domain.party.dto.PartyResDto;
 import com.oneovern.domain.party.entity.Party;
 import com.oneovern.domain.party.enums.PartyStatus;
 import com.oneovern.domain.party.repository.PartyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,12 +26,9 @@ public class PartyService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long createParty(Long planId, PartyReqDto dto) {
+    public Long createParty(Long planId, Member member, PartyReqDto dto) {
         OttPlan ottPlan = ottPlanRepository.findById(planId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 요금제입니다."));
-
-        Member leader = memberRepository.findById(dto.getLeaderId())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         Party party = Party.builder()
                 .partyName(dto.getPartyName())
@@ -37,10 +38,57 @@ public class PartyService {
                 .bankAccount(dto.getBankAccount())
                 .partyStatus(PartyStatus.RECRUITING)
                 .ottPlan(ottPlan)
-                .leader(leader)
+                .leader(member)
                 .build();
 
         Party savedParty = partyRepository.save(party);
         return savedParty.getId();
+    }
+
+    public List<PartyResDto.PartyInquiryDto> getPartiesByOtt(Long ottId) {
+        return partyRepository.findByOttPlan_Ott_OttId(ottId).stream()
+                .map(party -> PartyResDto.PartyInquiryDto.builder()
+                        .partyId(party.getId())
+                        .partyName(party.getPartyName())
+                        .planName(party.getOttPlan().getPlanName())
+                        .leaderReliability(party.getLeader().getReliabilityScore())
+                        .currentMemberCount(party.getPartyMembers().size() + 1)
+                        .maxPeople(party.getOttPlan().getMaxMembers())
+                        .monthlyPrice(party.getOttPlan().getMonthlyPrice())
+                        .partyStatus(party.getPartyStatus())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public PartyResDto.PartyDetailDto getPartyDetail(Long partyId) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파티입니다."));
+
+        java.util.List<PartyResDto.PartyMemberInfoDto> memberInfos = new java.util.ArrayList<>();
+
+        memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
+                .nickname(party.getLeader().getNickname())
+                .reliabilityScore(party.getLeader().getReliabilityScore())
+                .isLeader(true)
+                .build());
+
+        if (party.getPartyMembers() != null) {
+            party.getPartyMembers().forEach(pm -> {
+                memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
+                        .nickname(pm.getMember().getNickname())
+                        .reliabilityScore(pm.getMember().getReliabilityScore())
+                        .isLeader(false)
+                        .build());
+            });
+        }
+
+        return PartyResDto.PartyDetailDto.builder()
+                .partyName(party.getPartyName())
+                .planName(party.getOttPlan().getPlanName())
+                .maxPeople(party.getOttPlan().getMaxMembers())
+                .currentMemberCount(memberInfos.size())
+                .monthlyPrice(party.getOttPlan().getMonthlyPrice())
+                .partyMembers(memberInfos)
+                .build();
     }
 }
