@@ -23,7 +23,7 @@ public class PartyController {
     public ApiResponse<Long> createParty(
             @PathVariable(name = "serviceId") Long serviceId,
             @PathVariable(name = "planId") Long planId,
-            @AuthUser Member member, //
+            @AuthUser Member member,
             @RequestBody PartyReqDto partyReqDto
     ) {
         Long partyId = partyService.createParty(planId, member, partyReqDto);
@@ -37,6 +37,7 @@ public class PartyController {
         List<PartyResDto.PartyInquiryDto> resList = partyService.getPartiesByOtt(ottId);
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, resList);
     }
+
     @GetMapping("/parties/{partyId}")
     public ApiResponse<PartyResDto.PartyDetailDto> getPartyDetail(
             @PathVariable(name = "partyId") Long partyId
