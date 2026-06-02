@@ -30,14 +30,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests->requests
-                        .anyRequest().authenticated() //그 외 모든 요청 인증 요구
+                        .anyRequest().authenticated()
                 )
-                .formLogin(AbstractHttpConfigurer::disable) //폼 로그인 비활성화
-                .sessionManagement(session->session //세션 관리 비활성화
+                .formLogin(AbstractHttpConfigurer::disable)
+                .sessionManagement(session->session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) //(id/pw 검사 전에) jwt 필터 추가
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(AbstractHttpConfigurer::disable)
-                //예외 상황 핸들러
                 .exceptionHandling(exception->exception
                         .accessDeniedHandler(customAccessDenied)
                         .authenticationEntryPoint(customEntryPoint)
@@ -46,28 +45,28 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){ //비밀번호 솔트
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
         return web->web.ignoring().requestMatchers(
-                // Swagger 허용
                 "/swagger-ui/**",
                 "/swagger-resources/**",
                 "/v3/api-docs/**",
-                //로그인
                 "/api/auth/login",
-                //회원가입
-                "/api/auth/signup"
+                "/api/auth/signup",
+                "/api/otts",
+                "/api/otts/**",
+                "/api/ott-service/**"
         );
     }
 
     @Bean
     public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistrationBean(JwtAuthFilter filter){
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
-        registration.setEnabled(false); //JwtAuthFilter 톰캣 전역 필터로 미등록
+        registration.setEnabled(false);
         return registration;
     }
 }
