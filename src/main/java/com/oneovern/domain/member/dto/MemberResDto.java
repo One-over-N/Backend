@@ -36,7 +36,6 @@ public class MemberResDto {
             Long historyId,
             String reason,  // 변동 사유
             Integer changeScore,
-            Integer afterScore,
             LocalDateTime createdAt
     ){}
 
