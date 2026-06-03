@@ -3,9 +3,11 @@ package com.oneovern.domain.party.repository;
 import com.oneovern.domain.party.entity.Party;
 import com.oneovern.domain.party.dto.PartyDetailProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,4 +43,20 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
             WHERE p.party_id = :partyId
             """, nativeQuery = true)
     Optional<PartyDetailProjection> findPartyDetailByIdNative(@Param("partyId") Long partyId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO join_request (request_status, member_id, party_id, created_at, updated_at) VALUES (:status, :memberId, :partyId, NOW(), NOW())", nativeQuery = true)
+    void saveJoinRequestNative(@Param("status") String status, @Param("memberId") Long memberId, @Param("partyId") Long partyId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE join_request SET request_status = :status WHERE join_request_id = :requestId", nativeQuery = true)
+    void updateJoinRequestStatusNative(@Param("requestId") Long requestId, @Param("status") String status);
+
+    @Query(value = "SELECT member_id FROM join_request WHERE join_request_id = :requestId", nativeQuery = true)
+    Long findMemberIdByRequestIdNative(@Param("requestId") Long requestId);
+
+    @Query(value = "SELECT p.leader_id FROM join_request jr JOIN party p ON jr.party_id = p.party_id WHERE jr.join_request_id = :requestId", nativeQuery = true)
+    Long findLeaderIdByRequestIdNative(@Param("requestId") Long requestId);
 }

@@ -10,6 +10,7 @@ import com.oneovern.domain.party.dto.PartyResDto;
 import com.oneovern.domain.party.entity.Party;
 import com.oneovern.domain.party.enums.PartyStatus;
 import com.oneovern.domain.party.repository.PartyRepository;
+import com.oneovern.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class PartyService {
     private final PartyRepository partyRepository;
     private final OttPlanRepository ottPlanRepository;
     private final MemberRepository memberRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public Long createParty(Long planId, Member member, PartyReqDto dto) {
@@ -64,7 +66,7 @@ public class PartyService {
         PartyDetailProjection proj = partyRepository.findPartyDetailByIdNative(partyId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파티입니다."));
 
-        Party party = partyRepository.findById(partyId).get(); // 상세 일반멤버 리스트 조회를 위한 단건 바인딩
+        Party party = partyRepository.findById(partyId).get();
 
         List<PartyResDto.PartyMemberInfoDto> memberInfos = new java.util.ArrayList<>();
 
@@ -92,5 +94,58 @@ public class PartyService {
                 .monthlyPrice(party.getOttPlan().getMonthlyPrice())
                 .partyMembers(memberInfos)
                 .build();
+    }
+
+    @Transactional
+    public Long requestJoin(Long partyId, Member member) {
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파티입니다."));
+
+        partyRepository.saveJoinRequestNative("PENDING", member.getId(), partyId);
+
+        com.oneovern.domain.notification.entity.Notification notification = com.oneovern.domain.notification.entity.Notification.builder()
+                .notificationType(com.oneovern.domain.notification.enums.NotificationType.JOIN_REQUEST)
+                .content("사용자 '" + member.getNickname() + "'님이 '" + party.getPartyName() + "' 파티 가입을 신청했습니다.")
+                .isRead(false)
+                .targetUrl("/api/ott-service/parties/" + party.getId())
+                .member(party.getLeader())
+                .build();
+
+        notificationRepository.save(notification);
+        return partyId;
+    }
+
+    @Transactional
+    public void processJoinRequest(Long requestId, String status, Member leader) {
+        Long realLeaderId = partyRepository.findLeaderIdByRequestIdNative(requestId);
+        if (realLeaderId == null || !realLeaderId.equals(leader.getId())) {
+            throw new IllegalArgumentException("해당 파티의 방장만 가입 신청을 처리할 수 있습니다.");
+        }
+
+        Long applicantId = partyRepository.findMemberIdByRequestIdNative(requestId);
+        Member applicant = memberRepository.findById(applicantId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신청자입니다."));
+
+        partyRepository.updateJoinRequestStatusNative(requestId, status.toUpperCase());
+
+        boolean isApproved = "APPROVED".equalsIgnoreCase(status);
+
+        com.oneovern.domain.notification.enums.NotificationType type = isApproved
+                ? com.oneovern.domain.notification.enums.NotificationType.JOIN_APPROVED
+                : com.oneovern.domain.notification.enums.NotificationType.JOIN_REJECTED;
+
+        String content = isApproved
+                ? "파티 가입이 승인되었습니다."
+                : "파티 가입이 거절되었습니다.";
+
+        com.oneovern.domain.notification.entity.Notification notification = com.oneovern.domain.notification.entity.Notification.builder()
+                .notificationType(type)
+                .content(content)
+                .isRead(false)
+                .targetUrl("/api/notifications")
+                .member(applicant)
+                .build();
+
+        notificationRepository.save(notification);
     }
 }

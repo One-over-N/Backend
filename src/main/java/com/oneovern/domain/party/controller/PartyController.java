@@ -45,4 +45,23 @@ public class PartyController {
         PartyResDto.PartyDetailDto res = partyService.getPartyDetail(partyId);
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, res);
     }
+
+    @PostMapping("/parties/{partyId}/join")
+    public ApiResponse<Long> requestJoin(
+            @PathVariable(name = "partyId") Long partyId,
+            @AuthUser Member member
+    ) {
+        Long requestId = partyService.requestJoin(partyId, member);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, requestId);
+    }
+
+    @PatchMapping("/parties/join-requests/{requestId}")
+    public ApiResponse<String> processJoinRequest(
+            @PathVariable(name = "requestId") Long requestId,
+            @RequestParam(name = "status") String status,
+            @AuthUser Member leader
+    ) {
+        partyService.processJoinRequest(requestId, status, leader);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, "가입 요청 처리가 완료되었습니다.");
+    }
 }
