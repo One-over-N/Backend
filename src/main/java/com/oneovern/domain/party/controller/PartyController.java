@@ -3,6 +3,7 @@ package com.oneovern.domain.party.controller;
 import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.party.dto.PartyReqDto;
 import com.oneovern.domain.party.dto.PartyResDto;
+import com.oneovern.domain.party.enums.RequestStatus;
 import com.oneovern.domain.party.service.PartyService;
 import com.oneovern.global.apiPayload.ApiResponse;
 import com.oneovern.global.apiPayload.code.GeneralSuccessCode;
@@ -58,7 +59,7 @@ public class PartyController {
     @PatchMapping("/parties/join-requests/{requestId}")
     public ApiResponse<String> processJoinRequest(
             @PathVariable(name = "requestId") Long requestId,
-            @RequestParam(name = "status") String status,
+            @RequestParam(name = "status") RequestStatus status,
             @AuthUser Member leader
     ) {
         partyService.processJoinRequest(requestId, status, leader);

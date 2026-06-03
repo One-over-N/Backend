@@ -9,7 +9,12 @@ import com.oneovern.domain.party.dto.PartyReqDto;
 import com.oneovern.domain.party.dto.PartyResDto;
 import com.oneovern.domain.party.entity.Party;
 import com.oneovern.domain.party.enums.PartyStatus;
+import com.oneovern.domain.party.enums.RequestStatus;
+import com.oneovern.domain.party.exception.PartyException;
+import com.oneovern.domain.party.exception.PartyErrorCode;
 import com.oneovern.domain.party.repository.PartyRepository;
+import com.oneovern.domain.notification.entity.Notification;
+import com.oneovern.domain.notification.enums.NotificationType;
 import com.oneovern.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,8 +36,7 @@ public class PartyService {
     @Transactional
     public Long createParty(Long planId, Member member, PartyReqDto dto) {
         OttPlan ottPlan = ottPlanRepository.findById(planId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 요금제입니다."));
-
+                .orElseThrow(() -> new PartyException(PartyErrorCode.OTT_PLAN_NOT_FOUND));
         Party party = Party.builder()
                 .partyName(dto.getPartyName())
                 .ottAccountId(dto.getOttAccountId())
@@ -43,30 +47,29 @@ public class PartyService {
                 .ottPlan(ottPlan)
                 .leader(member)
                 .build();
-
         Party savedParty = partyRepository.save(party);
         return savedParty.getId();
     }
 
     public List<PartyResDto.PartyInquiryDto> getPartiesByOtt(Long ottId) {
         return partyRepository.findPartyDetailsByOttId(ottId).stream()
-                .map(proj -> PartyResDto.PartyInquiryDto.builder()
-                        .partyId(proj.getPartyId())
-                        .partyName(proj.getPartyName())
-                        .planName(proj.getPlanName())
-                        .leaderReliability(proj.getLeaderReliability())
-                        .currentMemberCount(proj.getMemberCount())
-                        .maxPeople(4)
-                        .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
-                        .build())
+                .map(proj -> {
+                    return PartyResDto.PartyInquiryDto.builder()
+                            .partyId(proj.getPartyId())
+                            .partyName(proj.getPartyName())
+                            .planName(proj.getPlanName())
+                            .leaderReliability(proj.getLeaderReliability())
+                            .currentMemberCount(proj.getMemberCount())
+                            .maxPeople(4)
+                            .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 
     public PartyResDto.PartyDetailDto getPartyDetail(Long partyId) {
-        PartyDetailProjection proj = partyRepository.findPartyDetailByIdNative(partyId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파티입니다."));
-
-        Party party = partyRepository.findById(partyId).get();
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new PartyException(PartyErrorCode.PARTY_NOT_FOUND));
 
         List<PartyResDto.PartyMemberInfoDto> memberInfos = new java.util.ArrayList<>();
 
@@ -87,8 +90,8 @@ public class PartyService {
         }
 
         return PartyResDto.PartyDetailDto.builder()
-                .partyName(proj.getPartyName())
-                .planName(proj.getPlanName())
+                .partyName(party.getPartyName())
+                .planName(party.getOttPlan().getPlanName())
                 .maxPeople(party.getOttPlan().getMaxMembers())
                 .currentMemberCount(memberInfos.size())
                 .monthlyPrice(party.getOttPlan().getMonthlyPrice())
@@ -99,12 +102,21 @@ public class PartyService {
     @Transactional
     public Long requestJoin(Long partyId, Member member) {
         Party party = partyRepository.findById(partyId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 파티입니다."));
+                .orElseThrow(() -> new PartyException(PartyErrorCode.PARTY_NOT_FOUND));
+
+        if (partyRepository.existsActiveJoinRequest(partyId, member.getId()) == 1) {
+            throw new PartyException(PartyErrorCode.DUPLICATE_JOIN_REQUEST);
+        }
+
+        int currentCount = partyRepository.getCurrentMemberCountNative(partyId);
+        if (currentCount >= party.getOttPlan().getMaxMembers()) {
+            throw new PartyException(PartyErrorCode.PARTY_FULL);
+        }
 
         partyRepository.saveJoinRequestNative("PENDING", member.getId(), partyId);
 
-        com.oneovern.domain.notification.entity.Notification notification = com.oneovern.domain.notification.entity.Notification.builder()
-                .notificationType(com.oneovern.domain.notification.enums.NotificationType.JOIN_REQUEST)
+        Notification notification = Notification.builder()
+                .notificationType(NotificationType.JOIN_REQUEST)
                 .content("사용자 '" + member.getNickname() + "'님이 '" + party.getPartyName() + "' 파티 가입을 신청했습니다.")
                 .isRead(false)
                 .targetUrl("/api/ott-service/parties/" + party.getId())
@@ -116,29 +128,36 @@ public class PartyService {
     }
 
     @Transactional
-    public void processJoinRequest(Long requestId, String status, Member leader) {
+    public void processJoinRequest(Long requestId, RequestStatus status, Member leader) {
         Long realLeaderId = partyRepository.findLeaderIdByRequestIdNative(requestId);
         if (realLeaderId == null || !realLeaderId.equals(leader.getId())) {
-            throw new IllegalArgumentException("해당 파티의 방장만 가입 신청을 처리할 수 있습니다.");
+            throw new PartyException(PartyErrorCode.NOT_PARTY_LEADER);
         }
 
         Long applicantId = partyRepository.findMemberIdByRequestIdNative(requestId);
         Member applicant = memberRepository.findById(applicantId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신청자입니다."));
 
-        partyRepository.updateJoinRequestStatusNative(requestId, status.toUpperCase());
+        Long partyId = partyRepository.findPartyIdByRequestIdNative(requestId);
+        Party party = partyRepository.findById(partyId)
+                .orElseThrow(() -> new PartyException(PartyErrorCode.PARTY_NOT_FOUND));
 
-        boolean isApproved = "APPROVED".equalsIgnoreCase(status);
+        boolean isApproved = (RequestStatus.APPROVED == status);
 
-        com.oneovern.domain.notification.enums.NotificationType type = isApproved
-                ? com.oneovern.domain.notification.enums.NotificationType.JOIN_APPROVED
-                : com.oneovern.domain.notification.enums.NotificationType.JOIN_REJECTED;
+        if (isApproved) {
+            int currentCount = partyRepository.getCurrentMemberCountNative(partyId);
+            if (currentCount >= party.getOttPlan().getMaxMembers()) {
+                throw new PartyException(PartyErrorCode.PARTY_FULL);
+            }
+            partyRepository.savePartyMemberNative(partyId, applicantId);
+        }
 
-        String content = isApproved
-                ? "파티 가입이 승인되었습니다."
-                : "파티 가입이 거절되었습니다.";
+        partyRepository.updateJoinRequestStatusNative(requestId, status.name());
 
-        com.oneovern.domain.notification.entity.Notification notification = com.oneovern.domain.notification.entity.Notification.builder()
+        NotificationType type = isApproved ? NotificationType.JOIN_APPROVED : NotificationType.JOIN_REJECTED;
+        String content = isApproved ? "파티 가입이 승인되었습니다." : "파티 가입이 거절되었습니다.";
+
+        Notification notification = Notification.builder()
                 .notificationType(type)
                 .content(content)
                 .isRead(false)
