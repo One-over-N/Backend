@@ -73,4 +73,29 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
 
     @Query(value = "SELECT COUNT(*) + 1 FROM party_member WHERE party_id = :partyId", nativeQuery = true)
     int getCurrentMemberCountNative(@Param("partyId") Long partyId);
+
+    @Query(value = """
+    SELECT p.party_id AS partyId, p.party_name AS partyName,
+           op.plan_name AS planName, l.reliability_score AS leaderReliability,
+           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
+           p.party_status AS partyStatus
+    FROM party p
+    JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
+    JOIN member l ON p.leader_id = l.member_id
+    WHERE p.leader_id = :leaderId
+    """, nativeQuery = true)
+    List<PartyDetailProjection> findPartyDetailsByLeaderId(@Param("leaderId") Long leaderId);
+
+    @Query(value = """
+    SELECT p.party_id AS partyId, p.party_name AS partyName,
+           op.plan_name AS planName, l.reliability_score AS leaderReliability,
+           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
+           p.party_status AS partyStatus
+    FROM party p
+    JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
+    JOIN member l ON p.leader_id = l.member_id
+    JOIN party_member pm ON pm.party_id = p.party_id
+    WHERE pm.member_id = :memberId
+    """, nativeQuery = true)
+    List<PartyDetailProjection> findPartyDetailsByMemberId(@Param("memberId") Long memberId);
 }

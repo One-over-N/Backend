@@ -4,22 +4,27 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.member.repository.MemberRepository;
 import com.oneovern.domain.ott.entity.OttPlan;
 import com.oneovern.domain.ott.repository.OttPlanRepository;
-import com.oneovern.domain.party.dto.PartyDetailProjection;
 import com.oneovern.domain.party.dto.PartyReqDto;
 import com.oneovern.domain.party.dto.PartyResDto;
 import com.oneovern.domain.party.entity.Party;
 import com.oneovern.domain.party.enums.PartyStatus;
 import com.oneovern.domain.party.enums.RequestStatus;
-import com.oneovern.domain.party.exception.PartyException;
 import com.oneovern.domain.party.exception.PartyErrorCode;
+import com.oneovern.domain.party.exception.PartyException;
 import com.oneovern.domain.party.repository.PartyRepository;
 import com.oneovern.domain.notification.entity.Notification;
 import com.oneovern.domain.notification.enums.NotificationType;
 import com.oneovern.domain.notification.repository.NotificationRepository;
+import com.oneovern.domain.settlement.entity.MemberPayment;
+import com.oneovern.domain.settlement.entity.PartySettlement;
+import com.oneovern.domain.settlement.enums.SettlementStatus;
+import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
+import com.oneovern.domain.settlement.repository.PartySettlementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +37,8 @@ public class PartyService {
     private final OttPlanRepository ottPlanRepository;
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
+    private final PartySettlementRepository partySettlementRepository;
+    private final MemberPaymentRepository memberPaymentRepository;
 
     @Transactional
     public Long createParty(Long planId, Member member, PartyReqDto dto) {
@@ -47,23 +54,20 @@ public class PartyService {
                 .ottPlan(ottPlan)
                 .leader(member)
                 .build();
-        Party savedParty = partyRepository.save(party);
-        return savedParty.getId();
+        return partyRepository.save(party).getId();
     }
 
     public List<PartyResDto.PartyInquiryDto> getPartiesByOtt(Long ottId) {
         return partyRepository.findPartyDetailsByOttId(ottId).stream()
-                .map(proj -> {
-                    return PartyResDto.PartyInquiryDto.builder()
-                            .partyId(proj.getPartyId())
-                            .partyName(proj.getPartyName())
-                            .planName(proj.getPlanName())
-                            .leaderReliability(proj.getLeaderReliability())
-                            .currentMemberCount(proj.getMemberCount())
-                            .maxPeople(4)
-                            .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
-                            .build();
-                })
+                .map(proj -> PartyResDto.PartyInquiryDto.builder()
+                        .partyId(proj.getPartyId())
+                        .partyName(proj.getPartyName())
+                        .planName(proj.getPlanName())
+                        .leaderReliability(proj.getLeaderReliability())
+                        .currentMemberCount(proj.getMemberCount())
+                        .maxPeople(4)
+                        .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
+                        .build())
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +76,6 @@ public class PartyService {
                 .orElseThrow(() -> new PartyException(PartyErrorCode.PARTY_NOT_FOUND));
 
         List<PartyResDto.PartyMemberInfoDto> memberInfos = new java.util.ArrayList<>();
-
         memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
                 .nickname(party.getLeader().getNickname())
                 .reliabilityScore(party.getLeader().getReliabilityScore())
@@ -80,13 +83,13 @@ public class PartyService {
                 .build());
 
         if (party.getPartyMembers() != null) {
-            party.getPartyMembers().forEach(pm -> {
-                memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
-                        .nickname(pm.getMember().getNickname())
-                        .reliabilityScore(pm.getMember().getReliabilityScore())
-                        .isLeader(false)
-                        .build());
-            });
+            party.getPartyMembers().forEach(pm ->
+                    memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
+                            .nickname(pm.getMember().getNickname())
+                            .reliabilityScore(pm.getMember().getReliabilityScore())
+                            .isLeader(false)
+                            .build())
+            );
         }
 
         return PartyResDto.PartyDetailDto.builder()
@@ -115,15 +118,14 @@ public class PartyService {
 
         partyRepository.saveJoinRequestNative("PENDING", member.getId(), partyId);
 
-        Notification notification = Notification.builder()
+        notificationRepository.save(Notification.builder()
                 .notificationType(NotificationType.JOIN_REQUEST)
                 .content("사용자 '" + member.getNickname() + "'님이 '" + party.getPartyName() + "' 파티 가입을 신청했습니다.")
                 .isRead(false)
                 .targetUrl("/api/ott-service/parties/" + party.getId())
                 .member(party.getLeader())
-                .build();
+                .build());
 
-        notificationRepository.save(notification);
         return partyId;
     }
 
@@ -149,22 +151,67 @@ public class PartyService {
             if (currentCount >= party.getOttPlan().getMaxMembers()) {
                 throw new PartyException(PartyErrorCode.PARTY_FULL);
             }
+
             partyRepository.savePartyMemberNative(partyId, applicantId);
+
+            // 정산 데이터 생성
+            LocalDate targetDate = LocalDate.now().plusMonths(1).withDayOfMonth(1);
+            int perUserAmount = party.getOttPlan().getMonthlyPrice() / party.getOttPlan().getMaxMembers();
+
+            PartySettlement settlement = partySettlementRepository
+                    .findByPartyAndTargetDate(party, targetDate)
+                    .orElseGet(() -> partySettlementRepository.save(
+                            PartySettlement.builder()
+                                    .party(party)
+                                    .targetDate(targetDate)
+                                    .targetAmount(perUserAmount)
+                                    .settlementStatus(SettlementStatus.PENDING)
+                                    .build()
+                    ));
+
+            memberPaymentRepository.save(MemberPayment.builder()
+                    .member(applicant)
+                    .partySettlement(settlement)
+                    .paymentAmount(perUserAmount)
+                    .build());
         }
 
         partyRepository.updateJoinRequestStatusNative(requestId, status.name());
 
-        NotificationType type = isApproved ? NotificationType.JOIN_APPROVED : NotificationType.JOIN_REJECTED;
-        String content = isApproved ? "파티 가입이 승인되었습니다." : "파티 가입이 거절되었습니다.";
-
-        Notification notification = Notification.builder()
-                .notificationType(type)
-                .content(content)
+        notificationRepository.save(Notification.builder()
+                .notificationType(isApproved ? NotificationType.JOIN_APPROVED : NotificationType.JOIN_REJECTED)
+                .content(isApproved ? "파티 가입이 승인되었습니다." : "파티 가입이 거절되었습니다.")
                 .isRead(false)
                 .targetUrl("/api/notifications")
                 .member(applicant)
-                .build();
+                .build());
+    }
 
-        notificationRepository.save(notification);
+    public List<PartyResDto.PartyInquiryDto> getMyParties(Member member) {
+        return partyRepository.findPartyDetailsByLeaderId(member.getId()).stream()
+                .map(proj -> PartyResDto.PartyInquiryDto.builder()
+                        .partyId(proj.getPartyId())
+                        .partyName(proj.getPartyName())
+                        .planName(proj.getPlanName())
+                        .leaderReliability(proj.getLeaderReliability())
+                        .currentMemberCount(proj.getMemberCount())
+                        .maxPeople(4)
+                        .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<PartyResDto.PartyInquiryDto> getJoinedParties(Member member) {
+        return partyRepository.findPartyDetailsByMemberId(member.getId()).stream()
+                .map(proj -> PartyResDto.PartyInquiryDto.builder()
+                        .partyId(proj.getPartyId())
+                        .partyName(proj.getPartyName())
+                        .planName(proj.getPlanName())
+                        .leaderReliability(proj.getLeaderReliability())
+                        .currentMemberCount(proj.getMemberCount())
+                        .maxPeople(4)
+                        .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
+                        .build())
+                .collect(Collectors.toList());
     }
 }

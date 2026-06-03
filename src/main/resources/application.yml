@@ -18,6 +18,8 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 100
+        temp:
+          use_jdbc_metadata_defaults: false
 
   data:
     redis:

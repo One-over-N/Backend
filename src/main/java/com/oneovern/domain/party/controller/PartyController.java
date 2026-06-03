@@ -65,4 +65,16 @@ public class PartyController {
         partyService.processJoinRequest(requestId, status, leader);
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, "가입 요청 처리가 완료되었습니다.");
     }
+
+    // 내가 만든 파티 목록
+    @GetMapping("/parties/my")
+    public ApiResponse<List<PartyResDto.PartyInquiryDto>> getMyParties(@AuthUser Member member) {
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, partyService.getMyParties(member));
+    }
+
+    // 내가 참여 중인 파티 목록
+    @GetMapping("/parties/joined")
+    public ApiResponse<List<PartyResDto.PartyInquiryDto>> getJoinedParties(@AuthUser Member member) {
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, partyService.getJoinedParties(member));
+    }
 }
