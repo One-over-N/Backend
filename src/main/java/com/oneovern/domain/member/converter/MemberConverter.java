@@ -54,7 +54,6 @@ public class MemberConverter {
                 .historyId(history.getId())
                 .reason(history.getReason())
                 .changeScore(history.getChangeScore())
-                .afterScore(history.getAfterScore())
                 .createdAt(history.getCreatedAt())
                 .build();
     }
