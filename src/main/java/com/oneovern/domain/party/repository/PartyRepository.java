@@ -21,7 +21,8 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
                    op.plan_name AS planName, 
                    l.reliability_score AS leaderReliability, 
                    (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
-                   p.party_status AS partyStatus
+                   p.party_status AS partyStatus,
+                   op.monthly_price AS monthlyPrice
             FROM party p
             JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
             JOIN ott o ON op.ott_id = o.ott_id
@@ -36,7 +37,8 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
                    op.plan_name AS planName, 
                    l.reliability_score AS leaderReliability,
                    (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
-                   p.party_status AS partyStatus
+                   p.party_status AS partyStatus,
+                   op.monthly_price AS monthlyPrice
             FROM party p
             JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
             JOIN member l ON p.leader_id = l.member_id
@@ -51,7 +53,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE join_request SET request_status = :status WHERE join_request_id = :requestId", nativeQuery = true)
+    @Query(value = "UPDATE join_request SET request_status = :status, processed_at = NOW() WHERE join_request_id = :requestId", nativeQuery = true)
     void updateJoinRequestStatusNative(@Param("requestId") Long requestId, @Param("status") String status);
 
     @Query(value = "SELECT member_id FROM join_request WHERE join_request_id = :requestId", nativeQuery = true)
@@ -78,7 +80,8 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     SELECT p.party_id AS partyId, p.party_name AS partyName,
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
            (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
-           p.party_status AS partyStatus
+           p.party_status AS partyStatus,
+           op.monthly_price AS monthlyPrice
     FROM party p
     JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
     JOIN member l ON p.leader_id = l.member_id
@@ -90,7 +93,8 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     SELECT p.party_id AS partyId, p.party_name AS partyName,
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
            (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
-           p.party_status AS partyStatus
+           p.party_status AS partyStatus,
+           op.monthly_price AS monthlyPrice
     FROM party p
     JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
     JOIN member l ON p.leader_id = l.member_id
@@ -98,4 +102,12 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     WHERE pm.member_id = :memberId
     """, nativeQuery = true)
     List<PartyDetailProjection> findPartyDetailsByMemberId(@Param("memberId") Long memberId);
+
+    @Query(value = "SELECT join_request_id FROM join_request WHERE member_id = :memberId AND party_id = :partyId ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
+    Long findLatestRequestId(@Param("memberId") Long memberId, @Param("partyId") Long partyId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE party SET party_status = :status WHERE party_id = :partyId", nativeQuery = true)
+    void updatePartyStatusNative(@Param("partyId") Long partyId, @Param("status") String status);
 }

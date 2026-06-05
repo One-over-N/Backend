@@ -9,4 +9,5 @@ public interface PartyDetailProjection {
     Integer getLeaderReliability();
     Integer getMemberCount();
     String getPartyStatus();
+    Integer getMonthlyPrice();
 }

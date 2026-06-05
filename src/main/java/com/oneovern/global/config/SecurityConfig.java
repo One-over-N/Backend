@@ -63,7 +63,7 @@ public class SecurityConfig {
         // 프론트엔드 포트 허용 (React 기본 포트들 예시, 필요시 변경해라)
         configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
         // 모든 HTTP 메서드 허용 (GET, POST, PUT, DELETE 등)
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         // 모든 헤더 허용
         configuration.setAllowedHeaders(List.of("*"));
         // 자격 증명(쿠키, Authorization 헤더 등) 허용 설정

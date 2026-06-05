@@ -66,6 +66,7 @@ public class PartyService {
                         .leaderReliability(proj.getLeaderReliability())
                         .currentMemberCount(proj.getMemberCount())
                         .maxPeople(4)
+                        .monthlyPrice(proj.getMonthlyPrice())
                         .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
                         .build())
                 .collect(Collectors.toList());
@@ -117,12 +118,13 @@ public class PartyService {
         }
 
         partyRepository.saveJoinRequestNative("PENDING", member.getId(), partyId);
+        Long requestId = partyRepository.findLatestRequestId(member.getId(), partyId);
 
         notificationRepository.save(Notification.builder()
                 .notificationType(NotificationType.JOIN_REQUEST)
                 .content("사용자 '" + member.getNickname() + "'님이 '" + party.getPartyName() + "' 파티 가입을 신청했습니다.")
                 .isRead(false)
-                .targetUrl("/api/ott-service/parties/" + party.getId())
+                .targetUrl("/join-requests/" + requestId)
                 .member(party.getLeader())
                 .build());
 
@@ -154,26 +156,46 @@ public class PartyService {
 
             partyRepository.savePartyMemberNative(partyId, applicantId);
 
-            // 정산 데이터 생성
-            LocalDate targetDate = LocalDate.now().plusMonths(1).withDayOfMonth(1);
-            int perUserAmount = party.getOttPlan().getMonthlyPrice() / party.getOttPlan().getMaxMembers();
+            // 파티 다 찼으면 ACTIVE + 전체 정산 생성
+            int newCount = partyRepository.getCurrentMemberCountNative(partyId);
+            if (newCount >= party.getOttPlan().getMaxMembers()) {
+                partyRepository.updatePartyStatusNative(partyId, "ACTIVE");
 
-            PartySettlement settlement = partySettlementRepository
-                    .findByPartyAndTargetDate(party, targetDate)
-                    .orElseGet(() -> partySettlementRepository.save(
-                            PartySettlement.builder()
-                                    .party(party)
-                                    .targetDate(targetDate)
-                                    .targetAmount(perUserAmount)
-                                    .settlementStatus(SettlementStatus.PENDING)
-                                    .build()
-                    ));
+                LocalDate targetDate = LocalDate.now().withDayOfMonth(1);
+                int perUserAmount = party.getOttPlan().getMonthlyPrice() / party.getOttPlan().getMaxMembers();
 
-            memberPaymentRepository.save(MemberPayment.builder()
-                    .member(applicant)
-                    .partySettlement(settlement)
-                    .paymentAmount(perUserAmount)
-                    .build());
+                PartySettlement settlement = partySettlementRepository.save(
+                        PartySettlement.builder()
+                                .party(party)
+                                .targetDate(targetDate)
+                                .targetAmount(party.getOttPlan().getMonthlyPrice())
+                                .settlementStatus(SettlementStatus.PENDING)
+                                .build()
+                );
+
+                // 리더 정산
+                memberPaymentRepository.save(MemberPayment.builder()
+                        .member(party.getLeader())
+                        .partySettlement(settlement)
+                        .paymentAmount(perUserAmount)
+                        .build());
+
+                // 기존 파티원 정산 (party_member 테이블에서 조회)
+                party.getPartyMembers().forEach(pm ->
+                        memberPaymentRepository.save(MemberPayment.builder()
+                                .member(pm.getMember())
+                                .partySettlement(settlement)
+                                .paymentAmount(perUserAmount)
+                                .build())
+                );
+
+                // 신청자 정산
+                memberPaymentRepository.save(MemberPayment.builder()
+                        .member(applicant)
+                        .partySettlement(settlement)
+                        .paymentAmount(perUserAmount)
+                        .build());
+            }
         }
 
         partyRepository.updateJoinRequestStatusNative(requestId, status.name());
@@ -196,6 +218,7 @@ public class PartyService {
                         .leaderReliability(proj.getLeaderReliability())
                         .currentMemberCount(proj.getMemberCount())
                         .maxPeople(4)
+                        .monthlyPrice(proj.getMonthlyPrice())
                         .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
                         .build())
                 .collect(Collectors.toList());
@@ -210,6 +233,7 @@ public class PartyService {
                         .leaderReliability(proj.getLeaderReliability())
                         .currentMemberCount(proj.getMemberCount())
                         .maxPeople(4)
+                        .monthlyPrice(proj.getMonthlyPrice())
                         .partyStatus(PartyStatus.valueOf(proj.getPartyStatus().toUpperCase()))
                         .build())
                 .collect(Collectors.toList());
