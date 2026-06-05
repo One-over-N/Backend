@@ -3,6 +3,7 @@ package com.oneovern.domain.party.controller;
 import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.party.dto.PartyReqDto;
 import com.oneovern.domain.party.dto.PartyResDto;
+import com.oneovern.domain.party.enums.RequestStatus;
 import com.oneovern.domain.party.service.PartyService;
 import com.oneovern.global.apiPayload.ApiResponse;
 import com.oneovern.global.apiPayload.code.GeneralSuccessCode;
@@ -44,5 +45,36 @@ public class PartyController {
     ) {
         PartyResDto.PartyDetailDto res = partyService.getPartyDetail(partyId);
         return ApiResponse.onSuccess(GeneralSuccessCode.OK, res);
+    }
+
+    @PostMapping("/parties/{partyId}/join")
+    public ApiResponse<Long> requestJoin(
+            @PathVariable(name = "partyId") Long partyId,
+            @AuthUser Member member
+    ) {
+        Long requestId = partyService.requestJoin(partyId, member);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, requestId);
+    }
+
+    @PatchMapping("/parties/join-requests/{requestId}")
+    public ApiResponse<String> processJoinRequest(
+            @PathVariable(name = "requestId") Long requestId,
+            @RequestParam(name = "status") RequestStatus status,
+            @AuthUser Member leader
+    ) {
+        partyService.processJoinRequest(requestId, status, leader);
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, "가입 요청 처리가 완료되었습니다.");
+    }
+
+    // 내가 만든 파티 목록
+    @GetMapping("/parties/my")
+    public ApiResponse<List<PartyResDto.PartyInquiryDto>> getMyParties(@AuthUser Member member) {
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, partyService.getMyParties(member));
+    }
+
+    // 내가 참여 중인 파티 목록
+    @GetMapping("/parties/joined")
+    public ApiResponse<List<PartyResDto.PartyInquiryDto>> getJoinedParties(@AuthUser Member member) {
+        return ApiResponse.onSuccess(GeneralSuccessCode.OK, partyService.getJoinedParties(member));
     }
 }
