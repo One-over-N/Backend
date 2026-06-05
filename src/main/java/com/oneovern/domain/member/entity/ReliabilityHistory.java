@@ -30,9 +30,6 @@ public class ReliabilityHistory extends BaseEntity {
     @Column(name = "reason", nullable = false)
     private String reason;
 
-    @Builder.Default
-    @Column(name = "penalty_applied", nullable = false)
-    private boolean penaltyApplied=false;
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
     @JoinColumn(name="member_id", nullable = false)
