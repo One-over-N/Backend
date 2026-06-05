@@ -34,6 +34,10 @@ public class MemberPayment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus= PaymentStatus.UNPAID;
 
+    @Builder.Default
+    @Column(name = "penalty_applied", nullable = false)
+    private boolean penaltyApplied=false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "party_settlement_id", nullable = false)
     private PartySettlement partySettlement;
