@@ -16,13 +16,14 @@ import java.util.Optional;
 public interface PartyRepository extends JpaRepository<Party, Long> {
 
     @Query(value = """
-            SELECT p.party_id AS partyId, 
-                   p.party_name AS partyName, 
-                   op.plan_name AS planName, 
-                   l.reliability_score AS leaderReliability, 
+            SELECT p.party_id AS partyId,
+                   p.party_name AS partyName,
+                   op.plan_name AS planName,
+                   l.reliability_score AS leaderReliability,
                    (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
                    p.party_status AS partyStatus,
-                   op.monthly_price AS monthlyPrice
+                   op.monthly_price AS monthlyPrice,
+                   op.max_members AS maxMembers
             FROM party p
             JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
             JOIN ott o ON op.ott_id = o.ott_id
@@ -32,13 +33,14 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     List<PartyDetailProjection> findPartyDetailsByOttId(@Param("ottId") Long ottId);
 
     @Query(value = """
-            SELECT p.party_id AS partyId, 
-                   p.party_name AS partyName, 
-                   op.plan_name AS planName, 
+            SELECT p.party_id AS partyId,
+                   p.party_name AS partyName,
+                   op.plan_name AS planName,
                    l.reliability_score AS leaderReliability,
                    (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
                    p.party_status AS partyStatus,
-                   op.monthly_price AS monthlyPrice
+                   op.monthly_price AS monthlyPrice,
+                   op.max_members AS maxMembers
             FROM party p
             JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
             JOIN member l ON p.leader_id = l.member_id
@@ -81,7 +83,8 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
            (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
            p.party_status AS partyStatus,
-           op.monthly_price AS monthlyPrice
+           op.monthly_price AS monthlyPrice,
+           op.max_members AS maxMembers
     FROM party p
     JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
     JOIN member l ON p.leader_id = l.member_id
@@ -94,7 +97,8 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
            (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
            p.party_status AS partyStatus,
-           op.monthly_price AS monthlyPrice
+           op.monthly_price AS monthlyPrice,
+           op.max_members AS maxMembers
     FROM party p
     JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
     JOIN member l ON p.leader_id = l.member_id

@@ -10,4 +10,5 @@ public interface PartyDetailProjection {
     Integer getMemberCount();
     String getPartyStatus();
     Integer getMonthlyPrice();
+    Integer getMaxMembers();  // 추가
 }
