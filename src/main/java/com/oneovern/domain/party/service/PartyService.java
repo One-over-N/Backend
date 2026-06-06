@@ -180,14 +180,15 @@ public class PartyService {
                         .paymentAmount(perUserAmount)
                         .build());
 
-                // 기존 파티원 정산 (party_member 테이블에서 조회)
-                party.getPartyMembers().forEach(pm ->
-                        memberPaymentRepository.save(MemberPayment.builder()
-                                .member(pm.getMember())
-                                .partySettlement(settlement)
-                                .paymentAmount(perUserAmount)
-                                .build())
-                );
+                party.getPartyMembers().stream()
+                        .filter(pm -> !pm.getMember().getId().equals(applicantId))
+                        .forEach(pm ->
+                                memberPaymentRepository.save(MemberPayment.builder()
+                                        .member(pm.getMember())
+                                        .partySettlement(settlement)
+                                        .paymentAmount(perUserAmount)
+                                        .build())
+                        );
 
                 // 신청자 정산
                 memberPaymentRepository.save(MemberPayment.builder()
