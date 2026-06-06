@@ -156,10 +156,10 @@ public class PartyService {
 
             partyRepository.savePartyMemberNative(partyId, applicantId);
 
-            // 파티 다 찼으면 ACTIVE + 전체 정산 생성
+            // 파티 다 찼으면 CLOSED + 전체 정산 생성
             int newCount = partyRepository.getCurrentMemberCountNative(partyId);
             if (newCount >= party.getOttPlan().getMaxMembers()) {
-                partyRepository.updatePartyStatusNative(partyId, "ACTIVE");
+                partyRepository.updatePartyStatusNative(partyId, "CLOSED");
 
                 LocalDate targetDate = LocalDate.now().withDayOfMonth(1);
                 int perUserAmount = party.getOttPlan().getMonthlyPrice() / party.getOttPlan().getMaxMembers();
