@@ -1,6 +1,9 @@
 package com.oneovern.domain.settlement.service;
 
 import com.oneovern.domain.member.entity.Member;
+import com.oneovern.domain.member.entity.ReliabilityHistory;
+import com.oneovern.domain.member.repository.MemberRepository;
+import com.oneovern.domain.member.repository.ReliabilityHistoryRepository;
 import com.oneovern.domain.settlement.converter.SettlementConverter;
 import com.oneovern.domain.settlement.dto.SettlementResDto;
 import com.oneovern.domain.settlement.dto.projection.CurrentMemberPaymentProjection;
@@ -31,101 +34,73 @@ import java.util.stream.Collectors;
 public class SettlementService {
 
     private final MemberPaymentRepository memberPaymentRepository;
+    private final MemberRepository memberRepository;
+    private final ReliabilityHistoryRepository reliabilityHistoryRepository;
     private final Clock clock;
 
     @Value("${app.paging.default-size}")
     private int defaultPageSize;
 
-    //이번 달 정산
     public PageResDto<SettlementResDto.CurrentMemberPaymentInfo> getCurrentMemberPayments(Member member, Long cursor) {
 
-
-
-        //이번 달 계산
         LocalDate today = LocalDate.now(clock);
-        LocalDate startDate=today.withDayOfMonth(1);
-        LocalDate endDate=today.withDayOfMonth(today.lengthOfMonth());
+        LocalDate startDate = today.withDayOfMonth(1);
+        LocalDate endDate = today.withDayOfMonth(today.lengthOfMonth());
 
-        //이번 달 정산 조회
-        List<CurrentMemberPaymentProjection> memberPayments=memberPaymentRepository.findMemberPaymentsByCursor(
-                member.getId(),
-                cursor,
-                startDate,
-                endDate,
-                defaultPageSize+1
-        );
+        List<CurrentMemberPaymentProjection> memberPayments = memberPaymentRepository.findMemberPaymentsByCursor(
+                member.getId(), cursor, startDate, endDate, defaultPageSize + 1);
 
-        //커서가 마지막 값인지 확인
-        boolean isLast=true;
-        List<CurrentMemberPaymentProjection> modifiablePayments=new ArrayList<>(memberPayments);
-        if(modifiablePayments.size()>defaultPageSize){
-            isLast=false;
-            modifiablePayments.remove(defaultPageSize); //마지막 값인지 확인하기 위해 조회한 값 제거
+        boolean isLast = true;
+        List<CurrentMemberPaymentProjection> modifiablePayments = new ArrayList<>(memberPayments);
+        if (modifiablePayments.size() > defaultPageSize) {
+            isLast = false;
+            modifiablePayments.remove(defaultPageSize);
         }
 
-
-        //nextCursor 계산
         Long nextCursor = null;
         if (!modifiablePayments.isEmpty() && !isLast) {
-            nextCursor = modifiablePayments.get(modifiablePayments.size() - 1).getMemberPaymentId(); // 마지막 데이터의 PK를 커서로 지정
+            nextCursor = modifiablePayments.get(modifiablePayments.size() - 1).getMemberPaymentId();
         }
 
-        //dDay 계산
-        List<Integer> dDayList=memberPayments.stream()
+        List<Integer> dDayList = memberPayments.stream()
                 .map(projection -> {
-                    long daysLeft= ChronoUnit.DAYS.between(today, projection.getTargetDate());
-                    return(daysLeft>=0&&daysLeft<=3)?(int) daysLeft:null;
+                    long daysLeft = ChronoUnit.DAYS.between(today, projection.getTargetDate());
+                    return (daysLeft >= 0 && daysLeft <= 3) ? (int) daysLeft : null;
                 })
                 .collect(Collectors.toList());
 
-
-
-
-        //payments->PageResDto
-        return SettlementConverter.toCurrentMemberPaymentPage(memberPayments, dDayList , isLast, nextCursor);
+        return SettlementConverter.toCurrentMemberPaymentPage(memberPayments, dDayList, isLast, nextCursor);
     }
 
     public SettlementResDto.MemberPaymentSummary getMemberPaymentSummary(Member member) {
 
-        //이번 달 계산
         LocalDate today = LocalDate.now(clock);
-        LocalDate startDate=today.withDayOfMonth(1);
-        LocalDate endDate=today.withDayOfMonth(today.lengthOfMonth());
+        LocalDate startDate = today.withDayOfMonth(1);
+        LocalDate endDate = today.withDayOfMonth(today.lengthOfMonth());
 
-        // 이번 달 요약 조회
-        MemberPaymentSummaryProjection projection=memberPaymentRepository.findMemberPaymentSummaryByMemberAndDate(
-                member.getId(),
-                startDate,
-                endDate
-        );
+        MemberPaymentSummaryProjection projection = memberPaymentRepository.findMemberPaymentSummaryByMemberAndDate(
+                member.getId(), startDate, endDate);
 
         return SettlementConverter.toMemberPaymentSummary(projection);
     }
 
     public PageResDto<SettlementResDto.MemberPaymentHistory> getMemberPaymentHistory(Member member, Long cursor) {
 
-        // 납부 내역 기록 조회
-        List<MemberPaymentHistoryProjection> memberPaymentHistory=memberPaymentRepository.findMemberPaymentHistoryByCursor(
-                member.getId(),
-                cursor,
-                defaultPageSize + 1
-        );
+        List<MemberPaymentHistoryProjection> memberPaymentHistory = memberPaymentRepository.findMemberPaymentHistoryByCursor(
+                member.getId(), cursor, defaultPageSize + 1);
 
-        // 마지막 여부 확인
-        boolean isLast=true;
-        List<MemberPaymentHistoryProjection> modifiablePaymentHistory=new ArrayList<>(memberPaymentHistory);
-        if(modifiablePaymentHistory.size()>defaultPageSize){
-            isLast=false;
+        boolean isLast = true;
+        List<MemberPaymentHistoryProjection> modifiablePaymentHistory = new ArrayList<>(memberPaymentHistory);
+        if (modifiablePaymentHistory.size() > defaultPageSize) {
+            isLast = false;
             modifiablePaymentHistory.remove(defaultPageSize);
         }
 
-        // nextCursor 계산
-        Long nextCursor=null;
+        Long nextCursor = null;
         if (!modifiablePaymentHistory.isEmpty() && !isLast) {
-            nextCursor=modifiablePaymentHistory.get(modifiablePaymentHistory.size()-1).getMemberPaymentId();
+            nextCursor = modifiablePaymentHistory.get(modifiablePaymentHistory.size() - 1).getMemberPaymentId();
         }
 
-        // projection->PageResDto
         return SettlementConverter.toMemberPaymentHistoryPage(modifiablePaymentHistory, isLast, nextCursor);
     }
 
@@ -135,21 +110,32 @@ public class SettlementService {
             Long memberPaymentId,
             PaymentStatus paymentStatus) {
 
-        // memberPayment 조회
         MemberPayment memberPayment = memberPaymentRepository
                 .findById(memberPaymentId)
                 .orElseThrow(() -> new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_NOT_FOUND));
 
-        // member의 memberPayment가 맞는지 확인
-        if(!memberPayment.getMember().getId().equals(member.getId())){
+        if (!memberPayment.getMember().getId().equals(member.getId())) {
             throw new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_ACCESS_DENIED);
         }
 
-        // memberPayment 상태 변경
         memberPayment.updateStatus(paymentStatus, LocalDateTime.now(clock));
 
-        // memberPayment->SettlementResDto.PaidMarking
-        return SettlementConverter.toPaymentStatusUpdate(memberPayment);
+        // 납부 완료 시 신뢰도 +5점
+        if (paymentStatus == PaymentStatus.PAID) {
+            Member payer = memberRepository.findById(member.getId())
+                    .orElseThrow(() -> new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_ACCESS_DENIED));
+            int afterScore = Math.max(0, Math.min(100, payer.getReliabilityScore() + 5));
+            payer.updateReliabilityScore(5);
+            reliabilityHistoryRepository.save(
+                    ReliabilityHistory.builder()
+                            .member(payer)
+                            .changeScore(5)
+                            .afterScore(afterScore)
+                            .reason("정산 납부 완료")
+                            .build()
+            );
+        }
 
+        return SettlementConverter.toPaymentStatusUpdate(memberPayment);
     }
 }
