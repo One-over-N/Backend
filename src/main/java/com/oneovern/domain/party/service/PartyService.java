@@ -146,12 +146,11 @@ public class PartyService {
                 throw new PartyException(PartyErrorCode.PARTY_FULL);
             }
 
-            partyRepository.savePartyMemberNative(partyId, applicantId);
-
-            int newCount = partyRepository.getCurrentMemberCountNative(partyId);
-            if (newCount >= party.getOttPlan().getMaxMembers()) {
-                partyRepository.updatePartyStatusNative(partyId, "CLOSED");
-            }
+            // 파티원 추가
+            partyRepository.savePartyMemberNative(
+                    partyId,
+                    applicantId
+            );
         }
 
         partyRepository.updateJoinRequestStatusNative(requestId, status.name());
