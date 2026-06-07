@@ -104,6 +104,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     JOIN member l ON p.leader_id = l.member_id
     JOIN party_member pm ON pm.party_id = p.party_id
     WHERE pm.member_id = :memberId
+        AND p.party_status = 'RECRUITING'
     """, nativeQuery = true)
     List<PartyDetailProjection> findPartyDetailsByMemberId(@Param("memberId") Long memberId);
 
