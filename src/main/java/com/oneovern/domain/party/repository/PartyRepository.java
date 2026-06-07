@@ -75,7 +75,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     @Query(value = "SELECT EXISTS (SELECT 1 FROM join_request WHERE party_id = :partyId AND member_id = :memberId AND request_status IN ('PENDING', 'APPROVED'))", nativeQuery = true)
     int existsActiveJoinRequest(@Param("partyId") Long partyId, @Param("memberId") Long memberId);
 
-    @Query(value = "SELECT COUNT(*) + 1 FROM party_member WHERE party_id = :partyId", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM party_member WHERE party_id = :partyId", nativeQuery = true)
     int getCurrentMemberCountNative(@Param("partyId") Long partyId);
 
     @Query(value = """
