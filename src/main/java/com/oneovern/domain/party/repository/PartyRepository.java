@@ -20,7 +20,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
                    p.party_name AS partyName,
                    op.plan_name AS planName,
                    l.reliability_score AS leaderReliability,
-                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
+                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
                    p.party_status AS partyStatus,
                    op.monthly_price AS monthlyPrice,
                    op.max_members AS maxMembers
@@ -37,7 +37,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
                    p.party_name AS partyName,
                    op.plan_name AS planName,
                    l.reliability_score AS leaderReliability,
-                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
+                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
                    p.party_status AS partyStatus,
                    op.monthly_price AS monthlyPrice,
                    op.max_members AS maxMembers
@@ -81,7 +81,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     @Query(value = """
     SELECT p.party_id AS partyId, p.party_name AS partyName,
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
-           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
+           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
            p.party_status AS partyStatus,
            op.monthly_price AS monthlyPrice,
            op.max_members AS maxMembers
@@ -95,7 +95,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     @Query(value = """
     SELECT p.party_id AS partyId, p.party_name AS partyName,
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
-           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
+           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
            p.party_status AS partyStatus,
            op.monthly_price AS monthlyPrice,
            op.max_members AS maxMembers
