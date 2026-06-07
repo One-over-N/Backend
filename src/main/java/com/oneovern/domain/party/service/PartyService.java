@@ -53,11 +53,7 @@ public class PartyService {
                 .ottPlan(ottPlan)
                 .leader(member)
                 .build();
-
-        Party savedParty = partyRepository.save(party);
-        partyRepository.savePartyMemberNative(savedParty.getId(), member.getId());
-
-        return savedParty.getId();
+        return partyRepository.save(party).getId();
     }
 
     public List<PartyResDto.PartyInquiryDto> getPartiesByOtt(Long ottId) {
@@ -80,7 +76,6 @@ public class PartyService {
                 .orElseThrow(() -> new PartyException(PartyErrorCode.PARTY_NOT_FOUND));
 
         List<PartyResDto.PartyMemberInfoDto> memberInfos = new java.util.ArrayList<>();
-
         memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
                 .nickname(party.getLeader().getNickname())
                 .reliabilityScore(party.getLeader().getReliabilityScore())
@@ -88,13 +83,13 @@ public class PartyService {
                 .build());
 
         if (party.getPartyMembers() != null) {
-            party.getPartyMembers().stream()
-                    .filter(pm -> !pm.getMember().getId().equals(party.getLeader().getId()))
-                    .forEach(pm -> memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
+            party.getPartyMembers().forEach(pm ->
+                    memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
                             .nickname(pm.getMember().getNickname())
                             .reliabilityScore(pm.getMember().getReliabilityScore())
                             .isLeader(false)
-                            .build()));
+                            .build())
+            );
         }
 
         return PartyResDto.PartyDetailDto.builder()
