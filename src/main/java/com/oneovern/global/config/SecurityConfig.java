@@ -37,7 +37,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
-                // 1. CORS 설정 적용 (Customizer.withDefaults() 사용)
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
@@ -55,13 +54,15 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 2. CORS 상세 정책 설정을 위한 빈 등록 (withDefaults()가 이 빈을 찾아가서 씀)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 프론트엔드 포트 허용 (React 기본 포트들 예시, 필요시 변경해라)
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "https://frontend-ebon-five-27.vercel.app"
+        ));
         // 모든 HTTP 메서드 허용 (GET, POST, PUT, DELETE 등)
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         // 모든 헤더 허용
