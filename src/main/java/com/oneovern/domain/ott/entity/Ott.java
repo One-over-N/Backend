@@ -1,5 +1,6 @@
 package com.oneovern.domain.ott.entity;
 
+import com.oneovern.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "ott")
-public class Ott {
+public class Ott extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
