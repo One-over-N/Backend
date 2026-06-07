@@ -29,6 +29,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
             JOIN ott o ON op.ott_id = o.ott_id
             JOIN member l ON p.leader_id = l.member_id
             WHERE o.ott_id = :ottId
+                AND p.party_status = 'RECRUITING'
             """, nativeQuery = true)
     List<PartyDetailProjection> findPartyDetailsByOttId(@Param("ottId") Long ottId);
 
@@ -104,7 +105,6 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     JOIN member l ON p.leader_id = l.member_id
     JOIN party_member pm ON pm.party_id = p.party_id
     WHERE pm.member_id = :memberId
-        AND p.party_status = 'RECRUITING'
     """, nativeQuery = true)
     List<PartyDetailProjection> findPartyDetailsByMemberId(@Param("memberId") Long memberId);
 
