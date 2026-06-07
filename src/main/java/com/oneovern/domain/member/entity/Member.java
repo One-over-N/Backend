@@ -64,9 +64,6 @@ public class Member extends BaseEntity {
         this.nickname = nickname;
         this.email = email;
     }
-    public void updateReliabilityScore(int delta) {
-        this.reliabilityScore = Math.max(0, Math.min(100, this.reliabilityScore + delta));
-    }
 
 
 }
