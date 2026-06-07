@@ -122,7 +122,7 @@ public class PartyService {
 
         notificationRepository.save(Notification.builder()
                 .notificationType(NotificationType.JOIN_REQUEST)
-                .content("사용자 '" + member.getNickname() + "'님이 '" + party.getPartyName() + "' 파티 가입을 신청했습니다.")
+                .message("사용자 '" + member.getNickname() + "'님이 '" + party.getPartyName() + "' 파티 가입을 신청했습니다.")
                 .isRead(false)
                 .targetUrl("/join-requests/" + requestId)
                 .member(party.getLeader())
@@ -203,7 +203,7 @@ public class PartyService {
 
         notificationRepository.save(Notification.builder()
                 .notificationType(isApproved ? NotificationType.JOIN_APPROVED : NotificationType.JOIN_REJECTED)
-                .content(isApproved ? "파티 가입이 승인되었습니다." : "파티 가입이 거절되었습니다.")
+                .message(isApproved ? "파티 가입이 승인되었습니다." : "파티 가입이 거절되었습니다.")
                 .isRead(false)
                 .targetUrl("/api/notifications")
                 .member(applicant)

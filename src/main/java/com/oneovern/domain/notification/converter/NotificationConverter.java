@@ -15,7 +15,7 @@ public class NotificationConverter {
         return NotificationResDto.NotificationInfo.builder()
                 .notificationId(notification.getId())
                 .title(notification.getNotificationType().getDescription())
-                .message(notification.getContent())
+                .message(notification.getMessage())
                 .notificationType(notification.getNotificationType())
                 .targetUrl(notification.getTargetUrl())
                 .isRead(notification.isRead())
