@@ -20,7 +20,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
                    p.party_name AS partyName,
                    op.plan_name AS planName,
                    l.reliability_score AS leaderReliability,
-                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
+                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
                    p.party_status AS partyStatus,
                    op.monthly_price AS monthlyPrice,
                    op.max_members AS maxMembers
@@ -37,7 +37,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
                    p.party_name AS partyName,
                    op.plan_name AS planName,
                    l.reliability_score AS leaderReliability,
-                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
+                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) 1 AS memberCount,
                    p.party_status AS partyStatus,
                    op.monthly_price AS monthlyPrice,
                    op.max_members AS maxMembers
@@ -75,13 +75,13 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     @Query(value = "SELECT EXISTS (SELECT 1 FROM join_request WHERE party_id = :partyId AND member_id = :memberId AND request_status IN ('PENDING', 'APPROVED'))", nativeQuery = true)
     int existsActiveJoinRequest(@Param("partyId") Long partyId, @Param("memberId") Long memberId);
 
-    @Query(value = "SELECT COUNT(*) + 1 FROM party_member WHERE party_id = :partyId", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM party_member WHERE party_id = :partyId", nativeQuery = true)
     int getCurrentMemberCountNative(@Param("partyId") Long partyId);
 
     @Query(value = """
     SELECT p.party_id AS partyId, p.party_name AS partyName,
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
-           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
+           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
            p.party_status AS partyStatus,
            op.monthly_price AS monthlyPrice,
            op.max_members AS maxMembers
@@ -95,7 +95,7 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     @Query(value = """
     SELECT p.party_id AS partyId, p.party_name AS partyName,
            op.plan_name AS planName, l.reliability_score AS leaderReliability,
-           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) + 1 AS memberCount,
+           (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
            p.party_status AS partyStatus,
            op.monthly_price AS monthlyPrice,
            op.max_members AS maxMembers
