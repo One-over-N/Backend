@@ -8,8 +8,7 @@ import lombok.Getter;
 public enum PartyStatus {
 
     RECRUITING("모집 중"),
-    CLOSED("모집 완료"),
-    ACTIVE("활성화");
+    CLOSED("모집 완료");
 
     private final String description;
 

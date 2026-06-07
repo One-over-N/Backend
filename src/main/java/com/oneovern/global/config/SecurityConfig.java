@@ -78,6 +78,7 @@ public class SecurityConfig {
     }
 
     @Bean
+
     public FilterRegistrationBean<JwtAuthFilter> jwtAuthFilterRegistrationBean(JwtAuthFilter filter){
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);

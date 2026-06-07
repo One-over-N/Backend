@@ -27,13 +27,9 @@ public class ReliabilityHistory extends BaseEntity {
     @Column(name = "change_score", nullable = false)
     private Integer changeScore;
 
-    @Min(0)
-    @Max(100)
-    @Column(name = "after_score", nullable = false)
-    private Integer afterScore;
-
     @Column(name = "reason", nullable = false)
     private String reason;
+
 
     @ManyToOne(fetch = FetchType.LAZY) // member와의 연관관계
     @JoinColumn(name="member_id", nullable = false)

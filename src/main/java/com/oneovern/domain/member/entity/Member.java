@@ -41,7 +41,7 @@ public class Member extends BaseEntity {
     @Max(100)
     @Builder.Default
     @Column(name = "reliability_score", nullable = false)
-    private int reliabilityScore=50; //반정규화
+    private int reliabilityScore=50;
 
     @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true) //DB에서 cascade 설정 필요
