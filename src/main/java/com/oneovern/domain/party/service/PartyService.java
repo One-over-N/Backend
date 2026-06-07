@@ -15,7 +15,6 @@ import com.oneovern.domain.party.repository.PartyRepository;
 import com.oneovern.domain.notification.entity.Notification;
 import com.oneovern.domain.notification.enums.NotificationType;
 import com.oneovern.domain.notification.repository.NotificationRepository;
-import com.oneovern.domain.settlement.entity.MemberPayment;
 import com.oneovern.domain.settlement.entity.PartySettlement;
 import com.oneovern.domain.settlement.enums.SettlementStatus;
 import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
@@ -156,15 +155,13 @@ public class PartyService {
 
             partyRepository.savePartyMemberNative(partyId, applicantId);
 
-            // 파티 다 찼으면 CLOSED + 전체 정산 생성
             int newCount = partyRepository.getCurrentMemberCountNative(partyId);
             if (newCount >= party.getOttPlan().getMaxMembers()) {
                 partyRepository.updatePartyStatusNative(partyId, "CLOSED");
 
                 LocalDate targetDate = LocalDate.now().withDayOfMonth(1);
-                int perUserAmount = party.getOttPlan().getMonthlyPrice() / party.getOttPlan().getMaxMembers();
 
-                PartySettlement settlement = partySettlementRepository.save(
+                partySettlementRepository.save(
                         PartySettlement.builder()
                                 .party(party)
                                 .targetDate(targetDate)
@@ -172,30 +169,6 @@ public class PartyService {
                                 .settlementStatus(SettlementStatus.PENDING)
                                 .build()
                 );
-
-                // 리더 정산
-                memberPaymentRepository.save(MemberPayment.builder()
-                        .member(party.getLeader())
-                        .partySettlement(settlement)
-                        .paymentAmount(perUserAmount)
-                        .build());
-
-                party.getPartyMembers().stream()
-                        .filter(pm -> !pm.getMember().getId().equals(applicantId))
-                        .forEach(pm ->
-                                memberPaymentRepository.save(MemberPayment.builder()
-                                        .member(pm.getMember())
-                                        .partySettlement(settlement)
-                                        .paymentAmount(perUserAmount)
-                                        .build())
-                        );
-
-                // 신청자 정산
-                memberPaymentRepository.save(MemberPayment.builder()
-                        .member(applicant)
-                        .partySettlement(settlement)
-                        .paymentAmount(perUserAmount)
-                        .build());
             }
         }
 
