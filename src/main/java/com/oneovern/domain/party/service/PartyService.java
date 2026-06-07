@@ -53,6 +53,10 @@ public class PartyService {
                 .ottPlan(ottPlan)
                 .leader(member)
                 .build();
+
+        Party savedParty = partyRepository.save(party);
+        partyRepository.savePartyMemberNative(savedParty.getId(), member.getId());
+
         return partyRepository.save(party).getId();
     }
 
@@ -83,13 +87,14 @@ public class PartyService {
                 .build());
 
         if (party.getPartyMembers() != null) {
-            party.getPartyMembers().forEach(pm ->
-                    memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
-                            .nickname(pm.getMember().getNickname())
-                            .reliabilityScore(pm.getMember().getReliabilityScore())
-                            .isLeader(false)
-                            .build())
-            );
+            party.getPartyMembers().forEach(pm -> {
+                boolean isLeader = pm.getMember().getId().equals(party.getLeader().getId());
+                memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
+                        .nickname(pm.getMember().getNickname())
+                        .reliabilityScore(pm.getMember().getReliabilityScore())
+                        .isLeader(isLeader)
+                        .build());
+            });
         }
 
         return PartyResDto.PartyDetailDto.builder()
