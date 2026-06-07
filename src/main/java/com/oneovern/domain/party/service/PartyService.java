@@ -15,15 +15,10 @@ import com.oneovern.domain.party.repository.PartyRepository;
 import com.oneovern.domain.notification.entity.Notification;
 import com.oneovern.domain.notification.enums.NotificationType;
 import com.oneovern.domain.notification.repository.NotificationRepository;
-import com.oneovern.domain.settlement.entity.PartySettlement;
-import com.oneovern.domain.settlement.enums.SettlementStatus;
-import com.oneovern.domain.settlement.repository.MemberPaymentRepository;
-import com.oneovern.domain.settlement.repository.PartySettlementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,8 +31,6 @@ public class PartyService {
     private final OttPlanRepository ottPlanRepository;
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
-    private final PartySettlementRepository partySettlementRepository;
-    private final MemberPaymentRepository memberPaymentRepository;
 
     @Transactional
     public Long createParty(Long planId, Member member, PartyReqDto dto) {
@@ -158,17 +151,6 @@ public class PartyService {
             int newCount = partyRepository.getCurrentMemberCountNative(partyId);
             if (newCount >= party.getOttPlan().getMaxMembers()) {
                 partyRepository.updatePartyStatusNative(partyId, "CLOSED");
-
-                LocalDate targetDate = LocalDate.now().withDayOfMonth(1);
-
-                partySettlementRepository.save(
-                        PartySettlement.builder()
-                                .party(party)
-                                .targetDate(targetDate)
-                                .targetAmount(party.getOttPlan().getMonthlyPrice())
-                                .settlementStatus(SettlementStatus.PENDING)
-                                .build()
-                );
             }
         }
 
