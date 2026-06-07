@@ -2,6 +2,7 @@ package com.oneovern.domain.notification.repository;
 
 import com.oneovern.domain.notification.entity.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -36,6 +37,19 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
             nativeQuery=true
     )
     List<Notification> findUnreadNotificationByMemberId(
+            @Param("memberId") Long id);
+
+    @Modifying(clearAutomatically = true)
+    @Query(
+            value = """
+            UPDATE notification 
+             SET is_read = true, updated_at = NOW() 
+            WHERE member_id = :memberId 
+                AND is_read = false
+            """,
+            nativeQuery=true
+    )
+    int UpdateUnreadNotificationByMemberId(
             @Param("memberId") Long id);
 
     @Query(

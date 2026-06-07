@@ -67,7 +67,11 @@ public class NotificationService {
         List<Notification> targetNotifications;
         //전체 읽음 처리
         if(notificationIdList.contains("ALL")){
-            targetNotifications=notificationRepository.findUnreadNotificationByMemberId(member.getId());
+            targetNotifications = notificationRepository.findUnreadNotificationByMemberId(member.getId());
+
+            if (!targetNotifications.isEmpty()) {
+                notificationRepository.UpdateUnreadNotificationByMemberId(member.getId());
+            }
         }
         else{ //리스트의 알림만 읽음 처리
             List<Long> ids=notificationIdList.stream()
