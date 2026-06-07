@@ -120,22 +120,6 @@ public class SettlementService {
 
         memberPayment.updateStatus(paymentStatus, LocalDateTime.now(clock));
 
-        // 납부 완료 시 신뢰도 +5점
-        if (paymentStatus == PaymentStatus.PAID) {
-            Member payer = memberRepository.findById(member.getId())
-                    .orElseThrow(() -> new SettlementException(SettlementErrorCode.MEMBER_PAYMENT_ACCESS_DENIED));
-            int afterScore = Math.max(0, Math.min(100, payer.getReliabilityScore() + 5));
-            payer.updateReliabilityScore(5);
-            reliabilityHistoryRepository.save(
-                    ReliabilityHistory.builder()
-                            .member(payer)
-                            .changeScore(5)
-                            .afterScore(afterScore)
-                            .reason("정산 납부 완료")
-                            .build()
-            );
-        }
-
         return SettlementConverter.toPaymentStatusUpdate(memberPayment);
     }
 }
