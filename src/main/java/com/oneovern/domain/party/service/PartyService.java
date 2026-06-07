@@ -157,13 +157,15 @@ public class PartyService {
             if (currentCount >= party.getOttPlan().getMaxMembers()) {
                 throw new PartyException(PartyErrorCode.PARTY_FULL);
             }
+        }
 
+        partyRepository.updateJoinRequestStatusNative(requestId, status.name());
+
+        if (isApproved) {
             partyRepository.savePartyMemberNative(partyId, applicantId);
 
             int newCount = partyRepository.getCurrentMemberCountNative(partyId);
             if (newCount >= party.getOttPlan().getMaxMembers()) {
-                partyRepository.updatePartyStatusNative(partyId, "CLOSED");
-
                 LocalDate targetDate = LocalDate.now().withDayOfMonth(1);
 
                 partySettlementRepository.save(
@@ -176,8 +178,6 @@ public class PartyService {
                 );
             }
         }
-
-        partyRepository.updateJoinRequestStatusNative(requestId, status.name());
 
         notificationRepository.save(Notification.builder()
                 .notificationType(isApproved ? NotificationType.JOIN_APPROVED : NotificationType.JOIN_REJECTED)
