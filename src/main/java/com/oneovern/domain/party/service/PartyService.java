@@ -4,6 +4,8 @@ import com.oneovern.domain.member.entity.Member;
 import com.oneovern.domain.member.repository.MemberRepository;
 import com.oneovern.domain.ott.entity.OttPlan;
 import com.oneovern.domain.ott.repository.OttPlanRepository;
+import com.oneovern.domain.party.dto.PartyDetailProjection;
+import com.oneovern.domain.party.dto.PartyMemberProjection;
 import com.oneovern.domain.party.dto.PartyReqDto;
 import com.oneovern.domain.party.dto.PartyResDto;
 import com.oneovern.domain.party.entity.Party;
@@ -68,29 +70,31 @@ public class PartyService {
     }
 
     public PartyResDto.PartyDetailDto getPartyDetail(Long partyId) {
-        Party party = partyRepository.findById(partyId)
+        PartyDetailProjection partyProj = partyRepository.findPartyDetailById(partyId)
                 .orElseThrow(() -> new PartyException(PartyErrorCode.PARTY_NOT_FOUND));
+
+        List<PartyMemberProjection> memberProjs = partyRepository.findPartyMembersByPartyId(partyId);
 
         List<PartyResDto.PartyMemberInfoDto> memberInfos = new java.util.ArrayList<>();
 
-        if (party.getPartyMembers() != null) {
-            party.getPartyMembers().forEach(pm -> {
-                boolean isLeader = pm.getMember().getId().equals(party.getLeader().getId()); // 방장 여부 확인
+        if (memberProjs != null) {
+            memberProjs.forEach(mp -> {
+                boolean isLeader = mp.getIsLeader() != null && mp.getIsLeader() == 1;
 
                 memberInfos.add(PartyResDto.PartyMemberInfoDto.builder()
-                        .nickname(pm.getMember().getNickname())
-                        .reliabilityScore(pm.getMember().getReliabilityScore())
+                        .nickname(mp.getNickname())
+                        .reliabilityScore(mp.getReliabilityScore())
                         .isLeader(isLeader)
                         .build());
             });
         }
 
         return PartyResDto.PartyDetailDto.builder()
-                .partyName(party.getPartyName())
-                .planName(party.getOttPlan().getPlanName())
-                .maxPeople(party.getOttPlan().getMaxMembers())
-                .currentMemberCount(memberInfos.size())
-                .monthlyPrice(party.getOttPlan().getMonthlyPrice())
+                .partyName(partyProj.getPartyName())
+                .planName(partyProj.getPlanName())
+                .maxPeople(partyProj.getMaxMembers())
+                .currentMemberCount(partyProj.getMemberCount())
+                .monthlyPrice(partyProj.getMonthlyPrice())
                 .partyMembers(memberInfos)
                 .build();
     }
