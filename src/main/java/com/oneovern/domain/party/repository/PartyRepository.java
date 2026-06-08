@@ -1,5 +1,6 @@
 package com.oneovern.domain.party.repository;
 
+import com.oneovern.domain.party.dto.PartyMemberProjection;
 import com.oneovern.domain.party.entity.Party;
 import com.oneovern.domain.party.dto.PartyDetailProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,20 +35,31 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
     List<PartyDetailProjection> findPartyDetailsByOttId(@Param("ottId") Long ottId);
 
     @Query(value = """
-            SELECT p.party_id AS partyId,
-                   p.party_name AS partyName,
-                   op.plan_name AS planName,
-                   l.reliability_score AS leaderReliability,
-                   (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
-                   p.party_status AS partyStatus,
-                   op.monthly_price AS monthlyPrice,
-                   op.max_members AS maxMembers
-            FROM party p
-            JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
-            JOIN member l ON p.leader_id = l.member_id
-            WHERE p.party_id = :partyId
-            """, nativeQuery = true)
-    Optional<PartyDetailProjection> findPartyDetailByIdNative(@Param("partyId") Long partyId);
+        SELECT p.party_id AS partyId,
+               p.party_name AS partyName,
+               op.plan_name AS planName,
+               l.reliability_score AS leaderReliability,
+               (SELECT COUNT(*) FROM party_member pm WHERE pm.party_id = p.party_id) AS memberCount,
+               p.party_status AS partyStatus,
+               op.monthly_price AS monthlyPrice,
+               op.max_members AS maxMembers
+        FROM party p
+        JOIN ott_plan op ON p.ott_plan_id = op.ott_plan_id
+        JOIN member l ON p.leader_id = l.member_id
+        WHERE p.party_id = :partyId
+        """, nativeQuery = true)
+    Optional<PartyDetailProjection> findPartyDetailById(@Param("partyId") Long partyId);
+
+    @Query(value = """
+        SELECT m.nickname AS nickname,
+               m.reliability_score AS reliabilityScore,
+               CASE WHEN p.leader_id = m.member_id THEN true ELSE false END AS isLeader
+        FROM party_member pm
+        JOIN member m ON pm.member_id = m.member_id
+        JOIN party p ON pm.party_id = p.party_id
+        WHERE pm.party_id = :partyId
+        """, nativeQuery = true)
+    List<PartyMemberProjection> findPartyMembersByPartyId(@Param("partyId") Long partyId);
 
     @Modifying
     @Transactional
